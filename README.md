@@ -5,12 +5,22 @@
 repo นี้เก็บแค่เอกสารและ config ตัวอย่าง ไม่มี source code ของ server ตัว workflow, เอกสารอ้างอิง,
 template และ policy รันอยู่ฝั่ง CoE ส่วนที่ติดตั้งลงเครื่องคือแพ็กเกจ bridge บน PyPI เท่านั้น
 
+ของทั้งหมดอยู่ใต้ folder [`aidlc.kiro/`](aidlc.kiro/)
+
+```
+aidlc.kiro/
+  mcp/        MCP server ที่ publish แล้ว
+  skills/     Agent skill
+  steering/   Steering file
+  hooks/      Agent hook
+```
+
 | folder | เก็บอะไร | สถานะ |
 | --- | --- | --- |
-| [`mcp/`](mcp/) | MCP server ที่ publish แล้ว วิธีติดตั้ง และ runbook | ใช้งานได้ 3 ตัว |
-| [`skills/`](skills/) | Agent skill ที่ CoE แจกจ่าย | ยังไม่มีรายการ |
-| [`steering/`](steering/) | Steering file กลางสำหรับ `.kiro/steering/` | ยังไม่มีรายการ |
-| [`hooks/`](hooks/) | Agent hook สำหรับ `.kiro/hooks/` | ยังไม่มีรายการ |
+| [`aidlc.kiro/mcp/`](aidlc.kiro/mcp/) | MCP server ที่ publish แล้ว วิธีติดตั้ง และ runbook | ใช้งานได้ 3 ตัว |
+| [`aidlc.kiro/skills/`](aidlc.kiro/skills/) | Agent skill ที่ CoE แจกจ่าย | ยังไม่มีรายการ |
+| [`aidlc.kiro/steering/`](aidlc.kiro/steering/) | Steering file กลางสำหรับ `.kiro/steering/` | ยังไม่มีรายการ |
+| [`aidlc.kiro/hooks/`](aidlc.kiro/hooks/) | Agent hook สำหรับ `.kiro/hooks/` | ยังไม่มีรายการ |
 
 ## MCP server ที่พร้อมใช้
 
@@ -20,7 +30,7 @@ template และ policy รันอยู่ฝั่ง CoE ส่วนท�
 | `msclabs.html-creator` | [msclabs.html-creator-mcp-server](https://pypi.org/project/msclabs.html-creator-mcp-server/) | เปลี่ยนรายงาน assessment ของ AWS Transform เป็นเว็บเอกสารสองภาษาที่เปิด offline ได้ |
 | `msclabs.bpmn-creator` | [msclabs.bpmn-creator-mcp-server](https://pypi.org/project/msclabs.bpmn-creator-mcp-server/) | วาด business process เป็น BPMN swimlane `.drawio` |
 
-เริ่มที่ [mcp/README.md](mcp/README.md) แล้วทำตาม [mcp/RUNBOOK.md](mcp/RUNBOOK.md)
+เริ่มที่ [aidlc.kiro/mcp/README.md](aidlc.kiro/mcp/README.md) แล้วทำตาม [aidlc.kiro/mcp/RUNBOOK.md](aidlc.kiro/mcp/RUNBOOK.md)
 
 ## ก่อนเริ่ม
 
