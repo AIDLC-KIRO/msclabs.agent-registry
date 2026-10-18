@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "msclabs.devsecops-cicd": {
+      "command": "uvx",
+      "args": ["msclabs.devsecops-cicd-mcp-server==1.1.0"],
+      "env": { "MCP_API_TOKEN": "${MCP_API_TOKEN}" },
+      "disabled": false
+    },
+    "msclabs.html-creator": {
+      "command": "uvx",
+      "args": ["msclabs.html-creator-mcp-server==1.1.0"],
+      "env": { "MCP_API_TOKEN": "${MCP_API_TOKEN}" },
+      "disabled": false
+    },
+    "msclabs.bpmn-creator": {
+      "command": "uvx",
+      "args": ["msclabs.bpmn-creator-mcp-server==1.1.0"],
+      "env": { "MCP_API_TOKEN": "${MCP_API_TOKEN}" },
+      "disabled": false
+    }
+  }
+}
