@@ -34,16 +34,41 @@ every project at once and the reason for each one stays on the record.
 
 ## How governance flows
 
-```mermaid
-flowchart TB
-  CoE["AI-DLC CoE<br/>leads, security, architecture"] -->|"authors, reviews"| REG["This repository<br/>(read-only to teams)"]
-  REG -->|"steering, skills, hooks"| PROJ["Project repository<br/>.kiro/"]
-  REG -->|"hosted workflows"| MCP["MCP servers<br/>steps, gates, policy packs"]
-  PROJ --> SESS["AI-DLC session<br/>in the team's IDE"]
-  MCP --> SESS
-  SESS -->|"git push"| PIPE["DevSecOps CI/CD pipeline<br/>policy gate"]
-  PIPE -->|"pass"| ENV["Environment"]
-  PIPE -->|"fail"| SESS
+```text
+            ┌────────────────────────────────────────────────┐
+            │  AI-DLC Center of Excellence                   │
+            │  leads · security · architecture               │
+            └───────────────────────┬────────────────────────┘
+                                    │ authors, reviews, merges
+                                    ▼
+            ┌────────────────────────────────────────────────┐
+            │  This repository            read-only to teams │
+            │  steering · skills · hooks · hosted workflows  │
+            └──────────┬──────────────────────────┬──────────┘
+                       │ copied in                │ called at runtime
+                       ▼                          ▼
+        ┌──────────────────────────┐  ┌──────────────────────────┐
+        │  Project repository      │  │  Hosted MCP servers      │
+        │  .kiro/steering/         │  │  steps · gates · policy  │
+        └──────────────┬───────────┘  └───────────┬──────────────┘
+                       └─────────────┬────────────┘
+                                     ▼
+                       ┌──────────────────────────┐
+                       │  AI-DLC session          │
+                       │  in the team's IDE       │
+                       └─────────────┬────────────┘
+                                     │ git push
+                                     ▼
+                       ┌──────────────────────────┐
+                       │  DevSecOps CI/CD         │
+                       │  pipeline policy gate    │
+                       └────┬────────────────┬────┘
+                       fail │                │ pass
+                            │                ▼
+                            │     ┌──────────────────────┐
+                            │     │  Environment         │
+                            │     └──────────────────────┘
+                            └──> back to the session
 ```
 
 Three layers of control, doing different jobs:
@@ -268,11 +293,15 @@ Per-server tools and step-by-step flows are in each server's README.
 
 ## How the hosted workflows work
 
-```mermaid
-flowchart LR
-  C[MCP client] -- stdio JSON-RPC --> B["uvx bridge<br/>(your machine)"]
-  B -- "HTTPS + Bearer key" --> R["CoE registry<br/>ap-southeast-7"]
-  R --> W[steps, references,<br/>templates, policy]
+```text
+  ┌─────────────┐  stdio    ┌──────────────┐  HTTPS +    ┌──────────────────┐
+  │ MCP client  │  JSON-RPC │ uvx bridge   │  Bearer key │ CoE registry     │
+  │ your IDE    │ ────────> │ your machine │ ──────────> │ ap-southeast-7   │
+  └─────────────┘           └──────────────┘             └────────┬─────────┘
+                                                                  │
+                                                                  ▼
+                                                   steps · references
+                                                   templates · policy packs
 ```
 
 The bridge reads one JSON-RPC message per line from stdin, posts it upstream with your API key,

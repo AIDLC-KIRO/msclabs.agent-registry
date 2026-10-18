@@ -31,11 +31,15 @@ the [runbook](RUNBOOK.md).
 
 ## Architecture
 
-```mermaid
-flowchart LR
-  C[MCP client] -- stdio JSON-RPC --> B["uvx bridge<br/>(your machine)"]
-  B -- "HTTPS + Bearer key" --> R["CoE registry<br/>ap-southeast-7"]
-  R --> W[steps, references,<br/>templates, policy]
+```text
+  ┌─────────────┐  stdio    ┌──────────────┐  HTTPS +    ┌──────────────────┐
+  │ MCP client  │  JSON-RPC │ uvx bridge   │  Bearer key │ CoE registry     │
+  │ your IDE    │ ────────> │ your machine │ ──────────> │ ap-southeast-7   │
+  └─────────────┘           └──────────────┘             └────────┬─────────┘
+                                                                  │
+                                                                  ▼
+                                                   steps · references
+                                                   templates · policy packs
 ```
 
 The bridge reads one JSON-RPC message per line from stdin, posts it upstream with your key, and
