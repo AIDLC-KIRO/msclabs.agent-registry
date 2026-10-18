@@ -1,8 +1,15 @@
 # Steering
 
-Shared steering files for `.kiro/steering/`. Steering adds standing context and instructions to
-every request, or to requests that match a condition — team standards, project facts, security
-requirements, how to build and test.
+The organisation's standards, as files an assistant reads while it works. The AI-DLC Center of
+Excellence owns these; delivery teams copy what applies to their project into
+`.kiro/steering/` and work under them.
+
+Steering adds standing context to every request, or to requests that match a condition. It is the
+first of the three layers of control described in the
+[root README](../../README.md#how-governance-flows): steering shapes what gets written, the
+hosted workflows hold the gates, and the pipeline decides what ships. Steering guides rather than
+enforces — it is files in a workspace, and a team can change them. That is why anything that must
+be binding lives in [`../mcp`](../mcp) as a hosted server instead.
 
 ## What's here
 
@@ -47,6 +54,14 @@ cp -R aidlc.kiro/steering/security-requirements/pci-dss \
 # the guardrails, which most teams want everywhere
 cp -R aidlc.kiro/steering/guardrails ~/.kiro/steering/
 ```
+
+Commit what you copy. The standards a project was built under should be recorded with the
+project, not inferred later from whatever the registry happens to say at the time. Start a new
+session afterwards; a running one does not pick up newly copied steering.
+
+Taking an update is the same copy again. If you would rather track the registry as a dependency,
+add it as a git submodule and point your steering paths into it — either pattern works, as long
+as the team uses one consistently.
 
 ## Writing a steering file
 
