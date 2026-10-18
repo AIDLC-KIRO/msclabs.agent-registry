@@ -34,28 +34,16 @@ assistant ก็ทำงานอยู่ภายใต้กรอบนั�
 
 ## governance ไหลอย่างไร
 
-```text
-AI-DLC Center of Excellence — lead · security · architecture
-  │
-  │  เขียน review แล้ว merge
-  ▼
-repo นี้ — ทีมเห็นแบบ read-only
-  │  steering · skill · hook · workflow ที่โฮสต์ไว้
-  │
-  ├─ คัดลอกเข้าไป ────> repo ของโปรเจกต์ — .kiro/steering/
-  │                      │
-  └─ เรียกตอนทำงาน ────> MCP server ที่โฮสต์ไว้ — ขั้นตอน · gate · policy pack
-                         │
-                         ▼
-                      AI-DLC session — บน IDE ของทีม
-                         │
-                         │  git push
-                         ▼
-                      DevSecOps CI/CD pipeline — policy gate
-                         │
-                         ├─ ผ่าน ──────> environment
-                         │
-                         └─ ไม่ผ่าน ────> กลับไปที่ session
+```mermaid
+flowchart TB
+  CoE["AI-DLC CoE<br/>lead, security, architecture"] -->|"เขียนและ review"| REG["repo นี้<br/>(ทีมเห็นแบบ read-only)"]
+  REG -->|"steering, skill, hook"| PROJ["repo ของโปรเจกต์<br/>.kiro/"]
+  REG -->|"workflow ที่โฮสต์ไว้"| MCP["MCP server<br/>ขั้นตอน, gate, policy pack"]
+  PROJ --> SESS["AI-DLC session<br/>บน IDE ของทีม"]
+  MCP --> SESS
+  SESS -->|"git push"| PIPE["DevSecOps CI/CD pipeline<br/>policy gate"]
+  PIPE -->|"ผ่าน"| ENV["environment"]
+  PIPE -->|"ไม่ผ่าน"| SESS
 ```
 
 การควบคุมมีสามชั้น แต่ละชั้นทำหน้าที่ต่างกัน
@@ -274,19 +262,11 @@ tool เฉพาะของแต่ละ server และลำดับข�
 
 ## workflow ที่โฮสต์ไว้ทำงานอย่างไร
 
-```text
-MCP client — IDE ของคุณ
-  │
-  │  stdio JSON-RPC
-  ▼
-uvx bridge — บนเครื่องคุณ
-  │
-  │  HTTPS + Bearer key
-  ▼
-CoE registry — ap-southeast-7
-  │
-  ▼
-ขั้นตอน · เอกสารอ้างอิง · template · policy pack
+```mermaid
+flowchart LR
+  C[MCP client] -- stdio JSON-RPC --> B["uvx bridge<br/>(เครื่องคุณ)"]
+  B -- "HTTPS + Bearer key" --> R["CoE registry<br/>ap-southeast-7"]
+  R --> W[ขั้นตอน, เอกสารอ้างอิง,<br/>template, policy]
 ```
 
 bridge อ่าน JSON-RPC ทีละบรรทัดจาก stdin ส่งต่อขึ้นไปพร้อม API key แล้วเขียนคำตอบลง stdout
