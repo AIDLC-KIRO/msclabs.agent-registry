@@ -100,6 +100,10 @@ Run `Kiro: Open user MCP config (JSON)` from the command palette. Merge the four
 [`mcp.json`](mcp.json) into the existing `mcpServers` object. Do not create a nested second
 `mcpServers` object, and do not replace `${MCP_API_TOKEN}` with a raw key.
 
+To connect without the bridge, replace an entry's `command`/`args`/`env` with
+`"url": "https://8a3gpe2ji0.execute-api.ap-southeast-7.amazonaws.com/v1/<server>/mcp"` and
+`"headers": { "x-api-key": "${MCP_API_TOKEN}" }`. Keep only the servers you use.
+
 When editing JSON from PowerShell, use UTF-8 encoding. A default `Set-Content` invocation can write
 an encoding that the client cannot read.
 
@@ -182,8 +186,10 @@ To update or roll back a pinned version:
 
 ## 7. Rotate or revoke a key
 
-This repository documents no automatic key expiry. Plan periodic rotation according to your
-organization's policy rather than waiting for an expiry warning.
+Every newly issued key has an expiry date (7, 30, 60, or 90 days, or a custom date). The key is
+valid through that date in Asia/Bangkok time and is revoked by a daily job at 00:00 Asia/Bangkok,
+after which calls return `403`. Keys issued before expiry was introduced do not expire. Request a
+replacement before the date rather than after the first `403`.
 
 | Situation | Action |
 | --- | --- |
@@ -215,7 +221,8 @@ Kiro completely.
 
 ### `403 … the API key was rejected`
 
-Check for a truncated, mistyped, or revoked value. If the value is correct, contact the service
+Check for a truncated, mistyped, revoked, or expired value. An expired key cannot be
+re-enabled; request a replacement. If the value is correct, contact the service
 owner; this repository does not document propagation timing or rejection diagnostics.
 
 ### `429`
