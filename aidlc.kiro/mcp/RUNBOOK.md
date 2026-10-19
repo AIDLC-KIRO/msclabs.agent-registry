@@ -1,24 +1,29 @@
-# Runbook
+# MCP client runbook
 
-Operating the MSC Labs MCP servers from a developer machine: install, verify, upgrade, rotate a
-key, and diagnose a failure.
+This runbook covers installation, verification, upgrade, access-key rotation, and diagnostics for
+the MSC Labs hosted Model Context Protocol (MCP) services.
 
-Base URL: `https://rh7x5fl9j3.execute-api.ap-southeast-7.amazonaws.com`
+Base URL: `https://8a3gpe2ji0.execute-api.ap-southeast-7.amazonaws.com/v1`
+
+The current clients are the `aidlc.*-mcp` packages. The former `msclabs.*-mcp-server` packages and
+HTTP bearer-token configuration are retired. The current bridge sends credentials in the `x-api-key` header.
+This repository does not document the service's authentication or authorization implementation;
+therefore this runbook refers to the value as an access key or credential.
 
 ## 1. Prerequisites
 
 | Requirement | Check |
 | --- | --- |
-| uv / uvx | `uvx --version` |
-| Python 3.10+ | uv installs one if needed: `uv python install 3.10` |
-| An API key from the CoE | shaped `aidlcmcp_<12 chars>_<long random part>` |
-| Outbound HTTPS to the base URL | step 4 below |
-| draw.io MCP and Node.js | `bpmn-creator` only |
+| `uv` / `uvx` | `uvx --version` |
+| Python 3.10 or later | `uv python install 3.10` |
+| Access key | Obtain it through the route supplied by the deploying organization or service owner |
+| Outbound HTTPS | Run the check in section 4 |
+| draw.io MCP and Node.js | Required only for `bpmn-creator` |
 
-Install uv:
+Install `uv`:
 
 ```bash
-# macOS, Linux, WSL
+# macOS, Linux, Windows Subsystem for Linux (WSL)
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
@@ -27,188 +32,226 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-## 2. Set the API key
+## 2. Store the access key
 
-One key per consumer — per person, or per automated job. A key owns the sessions it opens, so a
-shared key means shared sessions.
+Use a separate key for each person or automated job where the service owner supports that model.
+Do not put a raw key in `mcp.json` or commit it to source control.
 
-### macOS, Linux, WSL
+### 2.1 macOS and zsh terminal sessions
+
+The following setup prompts without displaying or recording the key in shell history, stores it in
+a mode-600 file, and makes the variable available to new zsh terminal sessions:
 
 ```bash
 mkdir -p ~/.aidlc
-printf '%s' 'PASTE_YOUR_KEY' > ~/.aidlc/mcp-token
+read -rs "MCP_API_TOKEN?Access key: " && printf '\n'
+printf '%s' "$MCP_API_TOKEN" > ~/.aidlc/mcp-token
+unset MCP_API_TOKEN
 chmod 600 ~/.aidlc/mcp-token
 echo 'export MCP_API_TOKEN=$(cat ~/.aidlc/mcp-token)' >> ~/.zshrc
+source ~/.zshrc
 ```
 
-### Windows
+A graphical application launched from Finder or the Dock does not normally inherit `.zshrc`.
+Before launching Kiro from the graphical interface, set the variable for the current macOS login
+session:
 
-```powershell
-setx MCP_API_TOKEN "PASTE_YOUR_KEY"
-[Environment]::GetEnvironmentVariable('MCP_API_TOKEN','User')   # confirm it stuck
+```bash
+launchctl setenv MCP_API_TOKEN "$(cat ~/.aidlc/mcp-token)"
 ```
 
-The bridge reads `MCP_API_TOKEN` first, then `MSCLABS_MCP_TOKEN`.
-
-## 3. Configure the client
-
-### 3.1 MCP configuration
-
-Open the command palette, run `Kiro: Open user MCP config (JSON)`, and merge the three entries
-from [`mcp.json`](mcp.json) into the `mcpServers` object already there. Do not nest a second
-`mcpServers`.
-
-Editing this file from a PowerShell script needs `-Encoding utf8`; a bare `Set-Content` writes an
-encoding the client cannot read.
-
-### 3.2 Approve the variable name
-
-Run `Preferences: Open User Settings (JSON)` and add — or extend, if the key exists:
-
-```json
-"kiroAgent.mcpApprovedEnvVars": ["MCP_API_TOKEN"]
-```
-
-This step is not optional. Without it the client never substitutes `${MCP_API_TOKEN}` and you get
-the misleading error in [section 8](#8-troubleshooting).
-
-### 3.3 Restart completely
-
-- macOS: `Cmd+Q`, then reopen. Reload Window is not enough.
-- Windows: close every window, confirm in Task Manager that no Kiro process remains, then reopen.
-
-A process inherits its environment only at launch. If you are unsure the restart was complete,
-launch from a terminal, which passes the shell's environment directly:
+Quit Kiro with `Cmd+Q` before reopening it. Repeat `launchctl setenv` after signing out or restarting
+macOS, unless your organization provides an approved persistent secret-management method.
+Alternatively, launch Kiro from a terminal that already has the variable:
 
 ```bash
 kiro ~/path/to/your/project
 ```
 
-## 4. Verify
+### 2.2 Linux and WSL
 
-In the client, open the MCP Server view. All three should report Connected with 14, 14 and 12
-tools.
+Use the zsh commands above when zsh is your shell. For another shell, place the equivalent export in
+that shell's startup file and start the MCP client from an environment that receives it.
 
-From a terminal, before opening the client:
+### 2.3 Windows
+
+Enter the key at a secure prompt, convert it only for the environment-variable API, and remove the
+PowerShell variables immediately afterward:
+
+```powershell
+$secureKey = Read-Host "Access key" -AsSecureString
+$key = [System.Net.NetworkCredential]::new("", $secureKey).Password
+[Environment]::SetEnvironmentVariable("MCP_API_TOKEN", $key, "User")
+Remove-Variable key, secureKey
+[Environment]::GetEnvironmentVariable("MCP_API_TOKEN", "User") -ne $null
+```
+
+This updates future processes, not currently running applications. Close every Kiro window, confirm
+in Task Manager that no Kiro process remains, and then reopen Kiro. A Windows sign-out or restart
+may be required if the new process still does not receive the variable.
+
+The bridge checks `MCP_API_TOKEN` first and `MSCLABS_MCP_TOKEN` second.
+
+## 3. Configure Kiro
+
+### 3.1 MCP configuration
+
+Run `Kiro: Open user MCP config (JSON)` from the command palette. Merge the four entries from
+[`mcp.json`](mcp.json) into the existing `mcpServers` object. Do not create a nested second
+`mcpServers` object, and do not replace `${MCP_API_TOKEN}` with a raw key.
+
+When editing JSON from PowerShell, use UTF-8 encoding. A default `Set-Content` invocation can write
+an encoding that the client cannot read.
+
+### 3.2 Approve the variable name
+
+Run `Preferences: Open User Settings (JSON)` and add or extend:
+
+```json
+"kiroAgent.mcpApprovedEnvVars": ["MCP_API_TOKEN"]
+```
+
+### 3.3 Restart completely
+
+- macOS: quit with `Cmd+Q`, then reopen Kiro from the environment configured in section 2.
+- Windows: close all windows, confirm no Kiro process remains, then reopen it.
+
+Reloading a window is not sufficient because environment variables are inherited when the process
+starts.
+
+## 4. Verify connectivity and the key
+
+In Kiro's MCP Server view, the four servers should report Connected with 14, 14, 12, and 16 tools.
+
+The service has no documented unauthenticated health endpoint. The following `tools/list` request
+checks network connectivity and whether the service accepts the supplied key; it does not establish
+the service's broader authorization design.
 
 ```bash
-B=https://rh7x5fl9j3.execute-api.ap-southeast-7.amazonaws.com
+B=https://8a3gpe2ji0.execute-api.ap-southeast-7.amazonaws.com/v1
 
-# Health needs no key.
-curl -s "$B/devsecops-cicd/health"
-
-# 200 means the key works; 401 means it is wrong or revoked.
 curl -s -o /dev/null -w "%{http_code}\n" -X POST "$B/devsecops-cicd/mcp" \
-  -H "Authorization: Bearer $MCP_API_TOKEN" \
+  -H "x-api-key: $MCP_API_TOKEN" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
 ```
 
-Test the bridge itself, end to end:
+Typical responses are `200` when the request is accepted, `403` when the key is rejected, and `429`
+when a throttle or quota applies. A `429` can result from a per-key usage plan, but shared API,
+stage, or account limits may also apply. Confirm the configured limits and service metrics before
+assuming that other consumers are unaffected.
+
+Test the bridge end to end:
 
 ```bash
 echo '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' \
-  | uvx msclabs.devsecops-cicd-mcp-server==1.1.0
+  | uvx aidlc.devsecops-cicd-mcp@latest
 ```
 
-Expect a JSON object containing `result.tools` on stdout, and a `bridging stdio to …` line on
-stderr. Replace `devsecops-cicd` with `html-creator` or `bpmn-creator` for the others.
+Expect a JSON object containing `result.tools` on stdout and bridge diagnostics on stderr. Replace
+`devsecops-cicd` with `html-creator`, `bpmn-creator`, or `deck-creator` to test another server.
 
 ## 5. Environment variables
 
 | Variable | Description | Default |
 | --- | --- | --- |
-| `MCP_API_TOKEN` | Your API key. Required. | — |
-| `MSCLABS_MCP_TOKEN` | Alternative name for the key | — |
-| `MSCLABS_MCP_BASE_URL` | Point at a different deployment, such as a test stage | the CoE endpoint |
-| `MSCLABS_MCP_TIMEOUT` | Seconds to wait for one call | `120` |
+| `MCP_API_TOKEN` | Access key; required | — |
+| `MSCLABS_MCP_TOKEN` | Alternative access-key variable | — |
+| `MSCLABS_MCP_BASE_URL` | Alternative service deployment | CoE endpoint |
+| `MSCLABS_MCP_TIMEOUT` | Request timeout in seconds | `120` |
 
 ## 6. Upgrade and roll back
 
-Versions are pinned with `==1.1.0` on purpose. `@latest` means every machine silently takes a new
-bridge whenever one is published.
+| Form | `args` | Behavior |
+| --- | --- | --- |
+| Track latest | `["aidlc.devsecops-cicd-mcp@latest"]` | Checks for the newest bridge when the client starts |
+| Pin | `["aidlc.devsecops-cicd-mcp==1.0.0"]` | Keeps each machine on an explicit bridge version |
 
-1. Check the current version in [README.md](README.md) or on PyPI
-2. Change the number in `args` for each server
-3. If uvx still serves the old build, clear its cache:
-   `uv cache clean msclabs.devsecops-cicd-mcp-server`
-4. Click Retry in the MCP Server view, or restart the client
+Use exact versions for shared team or CI configuration where reproducibility is required. Use
+`@latest` only where automatic bridge updates are intentional. Workflow and policy content remain
+hosted in both cases.
 
-Rolling back is the same procedure with the previous number.
+To update or roll back a pinned version:
 
-Workflow content is updated server-side and reaches you without any package change. Upgrading the
-package matters only when the bridge itself changes.
+1. Confirm the intended published version.
+2. Change each package version in `args`.
+3. If necessary, clear the package cache, for example
+   `uv cache clean aidlc.devsecops-cicd-mcp`.
+4. Retry the server in Kiro or restart the client.
 
 ## 7. Rotate or revoke a key
 
+This repository documents no automatic key expiry. Plan periodic rotation according to your
+organization's policy rather than waiting for an expiry warning.
+
 | Situation | Action |
 | --- | --- |
-| Key is near expiry | Ask the CoE for a new one, replace it per section 2, restart the client |
-| Key leaked, or the machine is lost | Tell the CoE to revoke it. Revocation applies on the next call and affects only that key |
-| Moving to a new machine | Request a key for the new machine, then have the old one revoked |
+| Planned rotation | Request a replacement through the organization-specific route, update section 2, restart Kiro, verify, then request revocation of the old key |
+| Suspected disclosure or lost device | Use the private incident route supplied by the service owner and request immediate revocation |
+| New device | Request a separate key if supported, verify it, and retire the previous key when appropriate |
 
-Only a SHA-256 digest of each key is stored, so a lost key cannot be recovered. It has to be
-reissued.
+The issuance, storage, propagation, and revocation implementation is not documented in this public
+repository. Do not rely on a specific propagation interval or on assumptions about whether an
+administrator can retrieve an existing value. Obtain operational details from the service owner.
 
 ## 8. Troubleshooting
 
 ### `Dynamic Client Registration rejected (HTTP 404)`
 
-Not an OAuth problem, despite how it reads. The client sent the header as the literal text
-`Bearer ${MCP_API_TOKEN}` because the variable was never substituted, the server answered 401,
-and the client then assumed OAuth and tried to register — for which there is no endpoint, hence
-404.
+This can occur when the access-key variable is not expanded and the client subsequently attempts an
+OAuth discovery or registration path that the service does not provide. Check that:
 
-Check, in order:
-
-1. `MCP_API_TOKEN` is listed in `kiroAgent.mcpApprovedEnvVars`
-2. The variable has a value in a newly opened terminal (`echo $MCP_API_TOKEN`)
-3. The client was fully restarted — the most commonly missed step
+1. `MCP_API_TOKEN` appears in `kiroAgent.mcpApprovedEnvVars`.
+2. The process that launches Kiro receives a non-empty variable.
+3. Kiro was fully restarted after the variable was set.
+4. On macOS, GUI-launched Kiro received the value through `launchctl`; a terminal-only `.zshrc`
+   export is insufficient for Finder or Dock launches.
 
 ### `No API key` in the server log
 
-The bridge found neither `MCP_API_TOKEN` nor `MSCLABS_MCP_TOKEN` and exited with code 2. Set it
-per section 2 and restart the client.
+The bridge found neither supported access-key variable. Set it as described in section 2 and restart
+Kiro completely.
 
-### `401` or `403 … the API key was rejected`
+### `403 … the API key was rejected`
 
-The key is truncated, mistyped, expired, revoked, or not scoped to that server. Ask the CoE to
-check its status.
+Check for a truncated, mistyped, or revoked value. If the value is correct, contact the service
+owner; this repository does not document propagation timing or rejection diagnostics.
+
+### `429`
+
+Slow down and retry with backoff. A per-key usage plan is one possible cause. Shared API, stage, or
+account limits may also cause the response. The service owner must inspect deployed limits and
+metrics to identify the scope.
 
 ### `could not reach the registry`
 
-The network cannot reach the endpoint. Check corporate proxy, VPN and firewall, then run the
-health check in section 4.
+Check the corporate proxy, virtual private network (VPN), firewall, and Domain Name System (DNS),
+then run the connectivity check in section 4.
 
-### `uvx: command not found`, or the server never starts
+### `uvx: command not found`, or the server does not start
 
-The client cannot see `uvx` on `PATH`. Use an absolute path in `command`, for example
-`/Users/<you>/.local/bin/uvx`, or add a `PATH` entry to that server's `env`.
+Use the absolute `uvx` path in `command`, or provide an appropriate `PATH` in the server environment.
 
 ### Calls time out
 
-Raise `MSCLABS_MCP_TIMEOUT` in that server's `env`, for example `"300"`.
+Increase `MSCLABS_MCP_TIMEOUT` for the affected server, for example to `"300"`.
 
-### A session stops on its own
+### A session stops after repeated failures
 
-`run_log` counted the same cause three times. This is deliberate: it stops an assistant from
-guessing at a fix indefinitely. Find the real cause, then start a new session.
+Review the session status and run log, investigate the recorded cause, and resolve it before
+starting another session.
 
-### Using a key without setting an environment variable
+## 9. Data handling, access, and support
 
-Paste the key in place of `${MCP_API_TOKEN}` in `mcp.json`. It works immediately, with no
-restart. The cost is that the key now sits in a config file readable by anyone with access to the
-machine. Fine for a trial, not for regular use, and never commit that file.
+JSON-RPC tool arguments are transmitted from the local bridge to the hosted service over HTTPS. Do
+not send secrets or regulated or sensitive data unless your organization has approved the service
+for that use. Retention, service-side logging, and data residency are not documented here; obtain
+those details from the service owner.
 
-## 9. Getting help
-
-Open an issue with:
-
-- the server name and package version
-- the `[msclabs.<server>]` lines from the MCP output panel
-- the result of the health check in section 4
-- when it happened
-
-**Never attach an API key.** For a suspected key leak, contact the CoE directly rather than
-opening a public issue.
+No public access-key request, private incident contact, or guaranteed public support route is
+documented in this repository. The deploying organization or service owner must provide those
+organization-specific details. If public issues are enabled for your deployment, include only the
+server name, package version, relevant redacted `[aidlc.<server>]` log lines, and the result of
+section 4. Never include credentials, sensitive tool arguments, or unredacted logs in a public
+issue.

@@ -1,20 +1,26 @@
 {
   "mcpServers": {
-    "msclabs.devsecops-cicd": {
+    "aidlc.devsecops-cicd": {
       "command": "uvx",
-      "args": ["msclabs.devsecops-cicd-mcp-server==1.1.0"],
+      "args": ["aidlc.devsecops-cicd-mcp@latest"],
       "env": { "MCP_API_TOKEN": "${MCP_API_TOKEN}" },
       "disabled": false
     },
-    "msclabs.html-creator": {
+    "aidlc.html-creator": {
       "command": "uvx",
-      "args": ["msclabs.html-creator-mcp-server==1.1.0"],
+      "args": ["aidlc.html-creator-mcp@latest"],
       "env": { "MCP_API_TOKEN": "${MCP_API_TOKEN}" },
       "disabled": false
     },
-    "msclabs.bpmn-creator": {
+    "aidlc.bpmn-creator": {
       "command": "uvx",
-      "args": ["msclabs.bpmn-creator-mcp-server==1.1.0"],
+      "args": ["aidlc.bpmn-creator-mcp@latest"],
+      "env": { "MCP_API_TOKEN": "${MCP_API_TOKEN}" },
+      "disabled": false
+    },
+    "aidlc.deck-creator": {
+      "command": "uvx",
+      "args": ["aidlc.deck-creator-mcp@latest"],
       "env": { "MCP_API_TOKEN": "${MCP_API_TOKEN}" },
       "disabled": false
     }

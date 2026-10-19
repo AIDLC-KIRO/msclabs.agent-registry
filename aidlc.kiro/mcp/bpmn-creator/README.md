@@ -1,38 +1,40 @@
-# msclabs.bpmn-creator
+# aidlc.bpmn-creator
 
-[![PyPI](https://img.shields.io/pypi/v/msclabs.bpmn-creator-mcp-server)](https://pypi.org/project/msclabs.bpmn-creator-mcp-server/)
+[![PyPI](https://img.shields.io/pypi/v/aidlc.bpmn-creator-mcp)](https://pypi.org/project/aidlc.bpmn-creator-mcp/)
 
-A hosted MCP server for mapping a **business process to a BPMN 2.0 swimlane diagram** — one lane
-per department, role or system — saved as a `.drawio` file, then refined through per-department
-review until it matches how the work actually happens.
-
-Works for any process: ERP and approval flows, onboarding, order-to-cash, factory or government
-procedures.
+A hosted Model Context Protocol (MCP) server for mapping a business process as a Business Process
+Model and Notation (BPMN) 2.0 swimlane diagram. The result is saved as a `.drawio` file and can be
+refined through departmental review.
 
 ## Features
 
-- **Workspace first** — reads the specs, documents and code you already have before asking you anything
-- **One question at a time** — interviews with A–D plus Other options, answered in chat, in a questionnaire file, or skipped entirely
-- **A model, not a picture** — `process-model.md` holds lanes, steps, inputs, outputs, systems, rules, SLAs and open questions, and is the source of truth the diagram is generated from
-- **Validation that catches what the eye misses** — `bpmn_validate` finds invalid XML, duplicate ids, edges with missing ends
-- **Review loop built in** — per-department forms feed answers back into the model for v2, v3, with a change log
+- **Workspace-led discovery** — the local assistant reviews available specifications, documents,
+  and source code before requesting information from users.
+- **Structured interviews** — questions can be answered in chat or a questionnaire, or the
+  optional interview can be skipped.
+- **Process model as source of truth** — `process-model.md` records lanes, steps, inputs, outputs,
+  systems, rules, service-level agreements (SLAs), and open questions.
+- **XML validation** — `bpmn_validate` detects invalid XML, duplicate identifiers, and edges with
+  missing endpoints.
+- **Departmental review** — review responses can be incorporated into later diagram versions with
+  a change log.
 
 ## Prerequisites
 
-1. The [common prerequisites](../README.md#prerequisites) — `uv`, Python 3.10+, an API key
-2. **The [draw.io MCP server](https://www.npmjs.com/package/@drawio/mcp) and Node.js.** This
-   server validates diagrams but does not draw them. Without draw.io, nothing is drawn.
+1. The [common prerequisites](../README.md#prerequisites): `uv`, Python 3.10 or later, and an access key.
+2. Node.js and the [draw.io MCP server](https://www.npmjs.com/package/@drawio/mcp). The hosted
+   BPMN server validates process data and diagram XML but does not draw the diagram.
 
 ## Installation
 
-Both servers are needed:
+Both servers are required:
 
 ```json
 {
   "mcpServers": {
-    "msclabs.bpmn-creator": {
+    "aidlc.bpmn-creator": {
       "command": "uvx",
-      "args": ["msclabs.bpmn-creator-mcp-server==1.1.0"],
+      "args": ["aidlc.bpmn-creator-mcp@latest"],
       "env": { "MCP_API_TOKEN": "${MCP_API_TOKEN}" }
     },
     "drawio": {
@@ -43,7 +45,9 @@ Both servers are needed:
 }
 ```
 
-Environment variables are listed in the [registry README](../../../README.md#environment-variables).
+For an exact version, use `"args": ["aidlc.bpmn-creator-mcp==1.0.0"]`. See
+[Upgrade and roll back](../RUNBOOK.md#6-upgrade-and-roll-back). Environment variables are listed
+in the [registry README](../../../README.md#environment-variables).
 
 ## Available tools
 
@@ -51,68 +55,56 @@ Environment variables are listed in the [registry README](../../../README.md#env
 
 | Tool | Description |
 | --- | --- |
-| `bpmn_start` | Open a session for the process being mapped |
-| `bpmn_step_get` | Instructions and references for a step |
-| `bpmn_step_submit` | Record findings and advance; held back if required findings are missing |
-| `bpmn_step_skip` | Skip a step the workflow marks optional — step 3, the interview, is the usual one |
-| `bpmn_session_status` | Current step, confirmed facts, files reported, rounds logged |
-| `bpmn_run_log` | Log one iterate-and-verify round; three identical causes stop the session |
+| `bpmn_start` | Start a session for the process being mapped |
+| `bpmn_step_get` | Retrieve instructions and references for a step |
+| `bpmn_step_submit` | Record findings and advance when required findings are complete |
+| `bpmn_step_skip` | Skip an optional step with a reason |
+| `bpmn_session_status` | Retrieve the current step, confirmed facts, reported files, and logged rounds |
+| `bpmn_run_log` | Record an iteration and its result |
 
-This server has no `gate_confirm` tool. Review happens in step 6, by walking the paths with the
-people who do the work.
+BPMN is the exception to the gate-capable pattern: it has no `gate_confirm` tool. User review takes
+place in workflow step 6.
 
-### Validation
-
-| Tool | Description |
-| --- | --- |
-| `bpmn_validate` | Validate swimlane XML with the CoE's validator: invalid XML, duplicate ids, edges with missing ends |
-
-### Content
+### Validation and content
 
 | Tool | Description |
 | --- | --- |
-| `bpmn_catalogue_list` | Every step, reference, template and script this server serves |
-| `bpmn_reference_get` | One reference document, or one numbered section of it |
-| `bpmn_asset_get` | One template to adapt; `{{PLACEHOLDER}}` markers must be filled from evidence |
-| `bpmn_script_get` | The source of a bundled script, when you need to read what it does |
-| `bpmn_request_draft` | Draft the request to send when something is outside what you can do |
+| `bpmn_validate` | Validate supplied swimlane XML |
+| `bpmn_catalogue_list` | List hosted steps, references, templates, and scripts |
+| `bpmn_reference_get` | Retrieve a reference document or numbered section |
+| `bpmn_asset_get` | Retrieve a template whose placeholders must be completed from evidence |
+| `bpmn_script_get` | Retrieve the source of a bundled script for review |
+| `bpmn_request_draft` | Draft a request for an action outside the user's control |
 
 ## Workflow
 
-| Step | What happens |
+| Step | Activity |
 | --- | --- |
-| 1 Explore workspace | Read what already exists, so you do not ask what you could have found |
-| 2 Scope | Confirm the context found in step 1, then ask only about the gaps |
-| 3 Interview | Collect what only people know, one question at a time with options. **Optional** |
-| 4 Model | Record lanes, steps, types, inputs, outputs, systems, rules, SLAs and open questions in `process-model.md` |
-| 5 Draw | Turn the model into a swimlane `.drawio` that still reads well once exported |
-| 6 Review | Walk every path from Start to End with the user, failure paths included, in sections |
-| 7 Department forms | One review form per department, answered by the people who do that work daily |
-| 8 Iterate | Feed the answers back into the model, redraw, and keep a change log of what changed and why |
+| 1 Explore workspace | Review existing local sources |
+| 2 Scope | Confirm known context and identify information gaps |
+| 3 Interview | Collect knowledge from process participants. **Optional** |
+| 4 Model | Record the process in `process-model.md` |
+| 5 Draw | Use the draw.io MCP server to create the swimlane diagram |
+| 6 Review | Walk each path from start to end with the user, including failure paths |
+| 7 Department forms | Collect review responses from relevant departments |
+| 8 Iterate | Update the model, redraw the diagram, and record changes |
 
 ## Usage
 
 ```text
 Map the leave request process as BPMN
+Skip the interview and draw from the available documentation
 ```
 
-Everyday wording works — process map, workflow, as-is/to-be, swimlane, process interviews,
-department questionnaires. Skip straight to drawing with:
+Validate XML after each drawing update. XML validation does not detect visual overlap; verify the
+exported image before making layout claims.
 
-```text
-Skip the interview, just draw it
-```
+## Boundaries and data handling
 
-## Working with diagrams
-
-Validate after every draw. And do not claim a page has no overlapping edges unless you have
-actually looked at its exported image — the validator cannot see layout.
-
-## Limitations
-
-The drawing itself is done by the draw.io MCP server, which is a separate project, not part of
-this registry. `process-model.md` is the source of truth; if the model and the diagram disagree,
-the model wins and the diagram is regenerated.
+Drawing is performed by the separate draw.io MCP server. The hosted BPMN service provides workflow
+content and evaluates arguments submitted to its tools; it does not inspect local files directly.
+Tool arguments are sent over HTTPS. Do not submit secrets or unapproved sensitive process data. See
+the [common data-handling guidance](../README.md#data-handling-and-privacy).
 
 ## License
 
