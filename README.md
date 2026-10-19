@@ -172,12 +172,9 @@ and has no `gate_confirm` tool. See the [MCP overview](aidlc.kiro/mcp/README.md)
 
 ## Architecture and operational boundary
 
-```mermaid
-flowchart LR
-  C[MCP client] -- stdio JSON-RPC --> B["uvx bridge<br/>(local machine)"]
-  B -- "HTTPS + x-api-key" --> R["Hosted service<br/>ap-southeast-7"]
-  R --> W[steps, references,<br/>templates, policy]
-```
+![Registry architecture: the MCP client and uvx bridge on the local machine call API Gateway with x-api-key; four Lambda MCP servers keep sessions in DynamoDB and hand out S3 presigned URLs; Git push, read-only AWS discovery and the team pipeline stay on the team side](docs/diagrams/registry-architecture.drawio.png)
+
+Diagram source: [`docs/diagrams/`](docs/diagrams/). The PNG files embed the draw.io diagram, so they open and edit directly in draw.io.
 
 The local client or assistant may run read-only AWS commands with credentials on the user's machine.
 The hosted MCP service does not receive those AWS credentials, call AWS on the user's behalf, push

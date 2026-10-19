@@ -40,12 +40,9 @@ Platform-specific setup, verification, rotation, upgrades, and diagnostics are i
 
 ## Architecture
 
-```mermaid
-flowchart LR
-  C[MCP client] -- stdio JSON-RPC --> B["uvx bridge<br/>(local machine)"]
-  B -- "HTTPS + x-api-key" --> R["Hosted service<br/>ap-southeast-7"]
-  R --> W[steps, references,<br/>templates, policy]
-```
+![Registry architecture: local MCP client and uvx bridge, API Gateway with x-api-key, four Lambda MCP servers, DynamoDB sessions, S3 presigned scaffold assets, and the team-side Git and pipeline boundary](../../docs/diagrams/registry-architecture.drawio.png)
+
+Workflow diagrams for each server are in the server READMEs; sources are in [`docs/diagrams/`](../../docs/diagrams/).
 
 The bridge reads JavaScript Object Notation Remote Procedure Call (JSON-RPC) messages from stdin,
 sends tool arguments to the hosted service over HTTPS with the current bridge's `x-api-key`

@@ -78,6 +78,8 @@ place in workflow step 6.
 
 ## Workflow
 
+![aidlc.bpmn-creator workflow: 8 steps from Explore workspace to Iterate, an optional Interview that can be skipped, bpmn_validate after Draw, and a loop from Iterate back to Model](../../../docs/diagrams/bpmn-creator-workflow.drawio.png)
+
 | Step | Activity |
 | --- | --- |
 | 1 Explore workspace | Review existing local sources |

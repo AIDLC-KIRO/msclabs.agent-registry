@@ -79,6 +79,8 @@ in the [registry README](../../../README.md#environment-variables).
 
 ## Workflow
 
+![aidlc.devsecops-cicd workflow: 8 steps from Plan to Summary with user gates after Plan, Discover and Prepare, a deploy loop logged with cicd_run_log, and a stop after the same failure repeats three times](../../../docs/diagrams/devsecops-cicd-workflow.drawio.png)
+
 | Step | Activity |
 | --- | --- |
 | 1 Plan | Confirm the application name and language. **Gate 1** |
@@ -89,6 +91,17 @@ in the [registry README](../../../README.md#environment-variables).
 | 6 Generate | Write approved files locally and run local verification |
 | 7 Deploy | Push only after team approval; observe and diagnose pipeline actions |
 | 8 Summary | Report URLs, action results, changes, and outstanding team actions |
+
+### Delivery pipeline
+
+The diagram shows the CoE reference blueprint for the pipeline that step 7 pushes into. The pipeline
+runs in a Shared Services account. Its stages are source, build, test, deploy and post-deploy, and
+the deploy action assumes a role to deploy cross-account into the workload account. Organization-wide
+security, compliance and governance controls apply to both accounts. The hosted server never runs
+the pipeline; the team's own pipeline controls decide whether a change is deployed. The account
+layout and the controls in place depend on the deploying organization.
+
+![DevSecOps CI/CD blueprint: GitHub source through CodeConnections into CodePipeline in a Shared Services account; CodeBuild build with Amazon ECR and KMS-encrypted artifacts; security gates for unit-test, secret-detection, sca-sbom, image-scan, AWS Security Agent code review and policy-gate; a cross-account deploy role into the workload account where CloudFormation or SAM deploys ECS Fargate or Lambda; post-deploy health checks; and organization-wide controls from Organizations SCPs, Control Tower, IAM permissions boundaries, KMS, CloudTrail, AWS Config, Security Hub and GuardDuty](../../../docs/diagrams/devsecops-cicd-pipeline.drawio.png)
 
 ## Usage
 

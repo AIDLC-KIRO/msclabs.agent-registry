@@ -176,12 +176,9 @@ workflow step 6 และไม่มี `gate_confirm` ดูตารางใ
 
 ## สถาปัตยกรรมและขอบเขตการทำงาน
 
-```mermaid
-flowchart LR
-  C[MCP client] -- stdio JSON-RPC --> B["uvx bridge<br/>(เครื่องผู้ใช้)"]
-  B -- "HTTPS + x-api-key" --> R["Hosted service<br/>ap-southeast-7"]
-  R --> W[ขั้นตอน, เอกสารอ้างอิง,<br/>template, policy]
-```
+![สถาปัตยกรรม registry: MCP client และ uvx bridge บนเครื่องผู้ใช้เรียก API Gateway ด้วย x-api-key, MCP server 4 ตัวบน Lambda เก็บ session ใน DynamoDB และส่ง S3 presigned URL, ส่วน git push, การอ่าน AWS แบบอ่านอย่างเดียว และ pipeline ของทีมอยู่ฝั่งทีม](docs/diagrams/registry-architecture.drawio.png)
+
+ไฟล์ต้นฉบับอยู่ที่ [`docs/diagrams/`](docs/diagrams/) ไฟล์ PNG ฝัง diagram ของ draw.io ไว้ จึงเปิดแก้ใน draw.io ได้โดยตรง
 
 Local client หรือ assistant อาจรันคำสั่ง AWS แบบอ่านอย่างเดียวด้วย credential บนเครื่องผู้ใช้
 Hosted MCP service ไม่ได้รับ AWS credential ดังกล่าว ไม่เรียก AWS แทนผู้ใช้ ไม่ push source code
