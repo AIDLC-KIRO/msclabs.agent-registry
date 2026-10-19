@@ -72,6 +72,8 @@ in the [registry README](../../../README.md#environment-variables).
 
 ## Workflow
 
+![aidlc.deck-creator workflow: 6 steps from Job plan to Generate HTML with user gates after Job plan, Get resources and Prepare, and an optional Assess code step](../../../docs/diagrams/deck-creator-workflow.drawio.png)
+
 | Step | Activity |
 | --- | --- |
 | 1 Job plan | Confirm language, output type, and destination. **Gate 1** |

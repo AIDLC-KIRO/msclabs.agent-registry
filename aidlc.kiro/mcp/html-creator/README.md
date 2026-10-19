@@ -71,6 +71,8 @@ in the [registry README](../../../README.md#environment-variables).
 
 ## Workflow
 
+![aidlc.html-creator workflow: 6 steps from Job plan to Generate HTML with user gates after Job plan, Discover and Prepare](../../../docs/diagrams/html-creator-workflow.drawio.png)
+
 | Step | Activity |
 | --- | --- |
 | 1 Job plan | Confirm the destination, job list, and collaboration method. **Gate 1** |

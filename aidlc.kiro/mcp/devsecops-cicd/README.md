@@ -79,6 +79,8 @@ in the [registry README](../../../README.md#environment-variables).
 
 ## Workflow
 
+![aidlc.devsecops-cicd workflow: 8 steps from Plan to Summary with user gates after Plan, Discover and Prepare, a deploy loop logged with cicd_run_log, and a stop after the same failure repeats three times](../../../docs/diagrams/devsecops-cicd-workflow.drawio.png)
+
 | Step | Activity |
 | --- | --- |
 | 1 Plan | Confirm the application name and language. **Gate 1** |
@@ -89,6 +91,14 @@ in the [registry README](../../../README.md#environment-variables).
 | 6 Generate | Write approved files locally and run local verification |
 | 7 Deploy | Push only after team approval; observe and diagnose pipeline actions |
 | 8 Summary | Report URLs, action results, changes, and outstanding team actions |
+
+### Delivery pipeline
+
+The pipeline that step 7 pushes into follows the CoE blueprint: source, build, test, deploy and
+post-deploy. The hosted server never runs it; the team's own pipeline controls decide whether a
+change is deployed.
+
+![DevSecOps CI/CD pipeline: GitHub source through CodeConnections, CodeBuild build with images in Amazon ECR, a test stage with unit-test, secret-detection, sca-sbom, optional code-review by AWS Security Agent, image-scan and policy-gate, deploy to ECS Fargate or SAM serverless, and post-deploy health checks](../../../docs/diagrams/devsecops-cicd-pipeline.drawio.png)
 
 ## Usage
 
