@@ -107,8 +107,17 @@ BPMN ต้องใช้ Node.js และ [draw.io MCP server](https://www.np
 
 Repository นี้ยังไม่ได้ระบุช่องทางสาธารณะสำหรับขอ access key องค์กรที่ติดตั้ง service หรือ
 ผู้ดูแล service ต้องแจ้งช่องทางสำหรับออกและเพิกถอน key รวมถึงช่องทางขอความช่วยเหลือภายในองค์กร
-เอกสารไม่ได้กำหนดอายุของ key จึงควรเปลี่ยน key ตามรอบเวลาที่นโยบายองค์กรกำหนด ห้ามใช้ key
-ร่วมกัน และต้องรายงานเหตุ key รั่วไหลผ่านช่องทางส่วนตัวที่ผู้ดูแล service กำหนด
+ห้ามใช้ key ร่วมกัน และต้องรายงานเหตุ key รั่วไหลผ่านช่องทางส่วนตัวที่ผู้ดูแล service กำหนด
+
+Key ที่ออกใหม่ทุกตัวมีวันหมดอายุ ผู้ดูแล service เลือกได้ 7, 30, 60 หรือ 90 วัน หรือกำหนดวันเอง
+Key ใช้ได้ถึงสิ้นวันหมดอายุตามเวลา Asia/Bangkok และจะถูกเพิกถอนโดย job ที่รันทุกวันเวลา 00:00
+Asia/Bangkok หลังจากนั้น service จะตอบ `403` Key ที่ออกก่อนมีระบบวันหมดอายุไม่มีวันหมดอายุ
+ควรขอ key ใหม่ก่อนถึงวันหมดอายุ
+
+ผู้ดูแล service จะส่ง `mcp.json` มาพร้อม key โดยใส่เฉพาะ server ที่ต้องใช้ ค่าเริ่มต้นใช้ bridge
+`uvx` และมีแบบเชื่อมต่อ URL โดยตรงให้เลือกด้วย (ดู [การติดตั้ง](#การติดตั้ง))
+
+![วงจรชีวิตของ API key: ผู้ดูแล service ออก key พร้อมวันหมดอายุและส่ง mcp.json, client เรียก API Gateway ด้วย x-api-key, EventBridge Scheduler สั่ง Lambda ทุกวันเวลา 00:00 Asia/Bangkok เพื่อปิด key ที่เลยวันหมดอายุ](docs/diagrams/key-lifecycle.drawio.png)
 
 ## การติดตั้ง
 
@@ -151,6 +160,17 @@ Remove-Variable key, secureKey
 ระดับผู้ใช้หรือระดับโครงการของ Kiro เพิ่ม `MCP_API_TOKEN` ใน
 `kiroAgent.mcpApprovedEnvVars` และคง `${MCP_API_TOKEN}` ไว้ใน `mcp.json` ห้ามบันทึกค่า key
 โดยตรงในไฟล์ดังกล่าว
+
+Client ที่รองรับ remote MCP server เชื่อมต่อ endpoint โดยตรงได้โดยไม่ผ่าน bridge แต่ละรายการใช้
+`url` และส่ง key ใน header `x-api-key`:
+
+```json
+"aidlc.devsecops-cicd": {
+  "url": "https://8a3gpe2ji0.execute-api.ap-southeast-7.amazonaws.com/v1/devsecops-cicd/mcp",
+  "headers": { "x-api-key": "${MCP_API_TOKEN}" },
+  "disabled": false
+}
+```
 
 Configuration ตัวอย่างใช้ `@latest` หากทีมงานหรือระบบ continuous integration (CI) ต้องการ
 ผลลัพธ์ที่ทำซ้ำได้ ให้ระบุ version ที่แน่นอน เช่น
@@ -211,7 +231,7 @@ credential หรือข้อมูลที่มีกฎหมายหร
 | --- | --- |
 | `Dynamic Client Registration rejected (HTTP 404)` | ตรวจสอบว่า Kiro ได้รับตัวแปร ชื่อตัวแปรได้รับอนุญาต และปิด–เปิดโปรแกรม Kiro ใหม่โดยสมบูรณ์แล้ว |
 | `No API key` | ตัวแปร access key ที่ bridge รองรับไม่ได้ถูกส่งไปยัง bridge |
-| `403 … the API key was rejected` | ตรวจสอบว่า key ครบถ้วน พิมพ์ถูกต้อง และยังไม่ถูกเพิกถอน หากค่ายังถูกปฏิเสธให้ติดต่อผู้ดูแล service |
+| `403 … the API key was rejected` | ตรวจสอบว่า key ครบถ้วน พิมพ์ถูกต้อง ยังไม่ถูกเพิกถอน และยังไม่หมดอายุ หากเลยวันหมดอายุแล้วให้ขอ key ใหม่ |
 | `429` | รอแล้วลองใหม่โดยเพิ่มระยะเวลารอในแต่ละครั้ง สาเหตุอาจมาจาก usage plan ของ key หรือขีดจำกัดร่วมในระดับ API, stage หรือ account |
 | `could not reach the registry` | ตรวจสอบ proxy, virtual private network (VPN), firewall และ Domain Name System (DNS) |
 | `uvx: command not found` | ระบุ path แบบเต็มของ `uvx` หรือกำหนด `PATH` ให้ถูกต้อง |

@@ -107,9 +107,18 @@ complete authentication or authorization architecture and does not claim that th
 provides authorization.
 
 No public key-request route is documented here. The deploying organization or service owner must
-provide organization-specific issuance, revocation, and support contacts. Keys have no documented
-automatic expiry; plan rotation according to organizational policy. Do not share a key. Report a
-suspected disclosure through the private incident route supplied by the service owner.
+provide organization-specific issuance, revocation, and support contacts. Do not share a key.
+Report a suspected disclosure through the private incident route supplied by the service owner.
+
+Every newly issued key has an expiry date: 7, 30, 60, or 90 days, or a custom date chosen by the
+service owner. A key is valid through its expiry date (Asia/Bangkok time) and is revoked by a job
+that runs daily at 00:00 Asia/Bangkok; from then on the service answers `403`. Keys issued before
+expiry was introduced have no date and do not expire. Request a replacement before the date.
+
+With the key, the service owner hands over an `mcp.json` that lists only the servers you need. It
+uses the `uvx` bridge by default; a direct URL form is also available (see [Installation](#installation)).
+
+![API key lifecycle: the service owner issues a key with an expiry date and hands over mcp.json; the client calls API Gateway with x-api-key; EventBridge Scheduler runs a Lambda every day at 00:00 Asia/Bangkok that disables keys past their date](docs/diagrams/key-lifecycle.drawio.png)
 
 ## Installation
 
@@ -149,6 +158,17 @@ Task Manager, and reopen it; sign out or restart Windows if necessary.
 Merge [`aidlc.kiro/mcp/mcp.json`](aidlc.kiro/mcp/mcp.json) into Kiro's user or project MCP
 configuration. Add `MCP_API_TOKEN` to `kiroAgent.mcpApprovedEnvVars`. Keep
 `${MCP_API_TOKEN}` in `mcp.json`; do not paste the raw key into that file.
+
+Clients that support remote MCP servers can skip the bridge and connect straight to the endpoint.
+Each entry then uses `url` and sends the key in the `x-api-key` header:
+
+```json
+"aidlc.devsecops-cicd": {
+  "url": "https://8a3gpe2ji0.execute-api.ap-southeast-7.amazonaws.com/v1/devsecops-cicd/mcp",
+  "headers": { "x-api-key": "${MCP_API_TOKEN}" },
+  "disabled": false
+}
+```
 
 The provided configuration uses `@latest`. Use an exact version such as
 `"aidlc.devsecops-cicd-mcp==1.0.0"` for reproducible team or CI configuration. Full platform setup,
@@ -208,7 +228,7 @@ handling requirements.
 | --- | --- |
 | `Dynamic Client Registration rejected (HTTP 404)` | Confirm Kiro received the variable, approved its name, and was fully restarted |
 | `No API key` | Neither supported access-key variable reached the bridge |
-| `403 … the API key was rejected` | Check for a truncated, mistyped, or revoked key; contact the service owner if the value is correct |
+| `403 … the API key was rejected` | Check for a truncated, mistyped, revoked, or expired key; request a replacement if the expiry date has passed |
 | `429` | Retry with backoff; a per-key usage plan is possible, but shared API, stage, or account limits may also apply |
 | `could not reach the registry` | Check proxy, VPN, firewall, and DNS access |
 | `uvx: command not found` | Use the absolute `uvx` path or provide an appropriate `PATH` |
