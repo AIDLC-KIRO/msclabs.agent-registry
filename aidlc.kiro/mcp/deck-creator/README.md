@@ -89,6 +89,14 @@ Write an executive summary from .kiro/specs/order-service
 Build a progress report from the sprint notes in ./status
 ```
 
+## Presentation template text
+
+The presentation template keeps all 32 slide layouts, cards, diagrams and animations, but every
+text slot holds placeholder wording (`Lorem ipsum…`, `ข้อความ ตัวอย่าง…`), sections are named
+`หัวข้อ 1`–`หัวข้อ 7`, and the terminal demo is a placeholder recording. Supply all wording through
+`overrides.json`; a slot left unchanged shows the placeholder. The deck controls (theme names,
+navigation, contents overlay) are unchanged.
+
 ## Output types
 
 | Output type | Purpose | Primary reader |
