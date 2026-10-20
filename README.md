@@ -1,217 +1,154 @@
 # MSC Labs Agent Registry
 
-_Read this in other languages: [ไทย](README.th.md)_
+_Read this in [ไทย](README.th.md)._
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![clients](https://img.shields.io/badge/clients-1.0.0-blue)](https://pypi.org/project/aidlc.devsecops-cicd-mcp/)
 
-This repository is the organization's central configuration source for AI-assisted delivery. The
-AI-DLC Center of Excellence (CoE) maintains shared guardrails, security requirements, architecture
-standards, and hosted workflows. Delivery teams consume those controls and propose changes through
-the organization's review process.
+This public repository is the central distribution point for AI-assisted delivery controls maintained
+by the AI-DLC Center of Excellence (CoE). It contains reusable Kiro steering and client documentation
+for four hosted Model Context Protocol (MCP) workflows. It does not contain the hosted service code
+or enforce deployment policy by itself.
 
 > [!IMPORTANT]
-> Generative AI can make mistakes. Review generated output, infrastructure changes, and costs
-> before acting. Steering influences assistant behavior but does not guarantee results. Independent
-> repository and pipeline controls determine whether a change can be merged or deployed.
+> Generative AI can make mistakes. Review generated output, infrastructure changes, security impact,
+> and cost before acting. Repository permissions, approvals, and CI/CD pipeline controls remain the
+> authoritative enforcement layer.
 
-## Users and responsibilities
+## Start here
+
+| Goal | Go to | What you will find |
+| --- | --- | --- |
+| Apply shared standards to a project | [Steering guide](aidlc.kiro/steering/README.md) | Available controls, inclusion modes, and safe copy instructions |
+| Evaluate or choose a hosted workflow | [MCP overview](aidlc.kiro/mcp/README.md) | Server catalogue, prerequisites, tool pattern, and boundaries |
+| Install, verify, rotate a key, or troubleshoot | [MCP client runbook](aidlc.kiro/mcp/RUNBOOK.md) | Platform-specific operational procedures |
+| Understand one workflow | [DevSecOps](aidlc.kiro/mcp/devsecops-cicd/README.md) · [HTML](aidlc.kiro/mcp/html-creator/README.md) · [BPMN](aidlc.kiro/mcp/bpmn-creator/README.md) · [Deck](aidlc.kiro/mcp/deck-creator/README.md) | Workflow-specific tools, steps, and limitations |
+| Propose a registry change | [Contributing](#contributing) | Scope, review, and public-repository rules |
+
+## What is available
+
+| Area | Contents |
+| --- | --- |
+| [`aidlc.kiro/steering/`](aidlc.kiro/steering/README.md) | Guardrails, engineering conventions, and 129 security requirements across four packs |
+| [`aidlc.kiro/mcp/`](aidlc.kiro/mcp/README.md) | Configuration and documentation for four hosted workflow servers |
+| [`docs/diagrams/`](docs/diagrams/) | Editable draw.io sources and rendered architecture diagrams |
+
+The [`skills`](aidlc.kiro/skills/README.md) and [`hooks`](aidlc.kiro/hooks/README.md) folders currently
+document contributor formats only; no distributable entries are available yet.
+
+## How governance works
+
+The registry supports three separate control layers:
+
+1. **Steering guides the assistant.** Teams copy relevant files into a workspace. These files are
+   locally editable, so steering influences output but cannot guarantee or enforce a result.
+2. **Hosted MCP workflows standardize a process.** The CoE controls the hosted workflow, reference,
+   and policy content. Human gates record decisions, but the service does not deploy on a user's behalf.
+3. **Repository and pipeline controls enforce delivery policy.** Permissions, required reviews,
+   policy gates, and deployment approvals determine what can merge or ship.
 
 | Role | Access | Responsibility |
 | --- | --- | --- |
-| **AI-DLC CoE** — engineering, security, and architecture owners | Write through reviewed changes | Maintain organizational standards and hosted workflow services |
-| **Delivery teams** | Read-only consumption | Apply relevant controls, run workflows, and propose corrections when standards need to change |
+| **AI-DLC CoE** — engineering, security, and architecture owners | Write through reviewed changes | Maintain shared standards and hosted workflow services |
+| **Delivery teams** | Consume the registry and propose changes | Select applicable controls, run workflows, review output, and report gaps |
 
-Server-side hosting prevents delivery teams from modifying hosted workflow and policy content on
-their local machines. This does not by itself enforce deployment policy; enforcement depends on
-independent repository permissions, approvals, and CI/CD pipeline controls.
+## Apply steering
 
-## Repository contents
-
-| Folder | Contents | Status |
-| --- | --- | --- |
-| [`aidlc.kiro/steering/`](aidlc.kiro/steering/) | Guardrails, conventions, and 129 security requirements across four compliance packs | Available |
-| [`aidlc.kiro/mcp/`](aidlc.kiro/mcp/) | Four hosted workflow servers, published bridges, and an operations runbook | Available |
-| [`aidlc.kiro/skills/`](aidlc.kiro/skills/) | Agent skills distributed by the CoE | No entries yet |
-| [`aidlc.kiro/hooks/`](aidlc.kiro/hooks/) | Agent hooks for `.kiro/hooks/` | No entries yet |
-
-### Compliance coverage
-
-| Pack | Requirements | Coverage |
-| --- | --- | --- |
-| [ASA base pack](aidlc.kiro/steering/security-requirements/asa-base-pack/) | 10 | Authentication, authorization, audit logging, secret protection, tenant isolation, trusted cryptography |
-| [AWS Well-Architected](aidlc.kiro/steering/security-requirements/aws-well-architected/) | 32 | Encryption, network segmentation, least privilege, credential management, threat modeling |
-| [NIST CSF](aidlc.kiro/steering/security-requirements/nist-csf/) | 37 | Identify, protect, detect, respond, recover |
-| [PCI DSS](aidlc.kiro/steering/security-requirements/pci-dss/) | 50 | Cardholder-data scope, segmentation, logging, key management, secure development |
-
-ISO 27001 and Thailand's Personal Data Protection Act (PDPA) packs are not currently included.
-Existing requirements may overlap with those frameworks, but this repository does not claim
-coverage without a dedicated mapping. See [Contributing](#contributing).
-
-Architecture and engineering standards are under
-[`best-practices/`](aidlc.kiro/steering/best-practices/),
-[`development-practices/`](aidlc.kiro/steering/development-practices/),
-[`project-standards/`](aidlc.kiro/steering/project-standards/), and
-[`guardrails/`](aidlc.kiro/steering/guardrails/).
-
-## Use the central configuration
-
-Clone the repository and copy only the controls relevant to the workload:
+Copy only the controls assessed as relevant to the workload. For example, from a project directory:
 
 ```bash
 git clone --depth 1 https://github.com/AIDLC-KIRO/msclabs.agent-registry.git /tmp/registry
-mkdir -p .kiro/steering
+mkdir -p .kiro/steering/security-requirements/pci-dss
 cp -R /tmp/registry/aidlc.kiro/steering/guardrails .kiro/steering/
-cp -R /tmp/registry/aidlc.kiro/steering/development-practices .kiro/steering/
-cp -R /tmp/registry/aidlc.kiro/steering/security-requirements/pci-dss \
-      .kiro/steering/security-requirements/
+
+# Example: copy one PCI DSS requirement selected during assessment.
+PCI_REQUIREMENT=network-security-controls-for-traffic-segmentation.md
+cp "/tmp/registry/aidlc.kiro/steering/security-requirements/pci-dss/$PCI_REQUIREMENT" \
+   .kiro/steering/security-requirements/pci-dss/
 ```
 
-Commit copied controls so the applicable version is recorded with the project. The
-[steering README](aidlc.kiro/steering/README.md) explains inclusion modes. A team may instead use a
-Git submodule where its dependency-management policy permits one.
+Review files before copying them, then commit the selected controls so the project records the
+version it uses. Copy a whole pack only when the scope assessment says the complete pack applies.
+Do not copy every pack by default: each requirement file currently matches all files in context and
+can add substantial standing context. See the [steering guide](aidlc.kiro/steering/README.md) for
+selection guidance and inclusion modes.
 
-Organization-specific account identifiers, Amazon Resource Names (ARNs), network identifiers,
-internal URLs, and credentials must remain in approved private systems, not this public repository.
+### Security requirement packs
 
-## MCP servers
+| Pack | Requirements | Coverage |
+| --- | --- | --- |
+| [ASA base pack](aidlc.kiro/steering/security-requirements/asa-base-pack/_index.md) | 10 | Authentication, authorization, audit logging, secret protection, tenant isolation, trusted cryptography |
+| [AWS Well-Architected](aidlc.kiro/steering/security-requirements/aws-well-architected/_index.md) | 32 | Encryption, network segmentation, least privilege, credential management, threat modeling |
+| [NIST CSF](aidlc.kiro/steering/security-requirements/nist-csf/_index.md) | 37 | Identify, protect, detect, respond, recover |
+| [PCI DSS](aidlc.kiro/steering/security-requirements/pci-dss/_index.md) | 50 | Cardholder-data scope, segmentation, logging, key management, secure development |
+
+ISO 27001 and Thailand's Personal Data Protection Act (PDPA) packs are not included. Existing
+requirements may overlap with those frameworks, but this repository does not claim coverage without
+a dedicated mapping.
+
+## Connect hosted MCP workflows
 
 | Server | Purpose | Tools | Documentation |
 | --- | --- | --- | --- |
-| **aidlc.devsecops-cicd** | Guide application preparation, policy review, pipeline observation, and deployment handoff | 14 | [devsecops-cicd](aidlc.kiro/mcp/devsecops-cicd/README.md) |
-| **aidlc.html-creator** | Produce offline bilingual documentation from AWS Transform assessments | 14 | [html-creator](aidlc.kiro/mcp/html-creator/README.md) |
-| **aidlc.bpmn-creator** | Model a process as a BPMN 2.0 swimlane diagram and support departmental review | 12 | [bpmn-creator](aidlc.kiro/mcp/bpmn-creator/README.md) |
-| **aidlc.deck-creator** | Produce an HTML presentation, executive summary, or progress report from project evidence | 16 | [deck-creator](aidlc.kiro/mcp/deck-creator/README.md) |
+| `aidlc.devsecops-cicd` | Prepare applications, review policy, observe pipelines, and hand off deployment | 14 | [Guide](aidlc.kiro/mcp/devsecops-cicd/README.md) |
+| `aidlc.html-creator` | Build offline bilingual documentation from AWS Transform assessments | 14 | [Guide](aidlc.kiro/mcp/html-creator/README.md) |
+| `aidlc.bpmn-creator` | Model BPMN 2.0 swimlanes and support departmental review | 12 | [Guide](aidlc.kiro/mcp/bpmn-creator/README.md) |
+| `aidlc.deck-creator` | Build HTML presentations, executive summaries, and progress reports | 16 | [Guide](aidlc.kiro/mcp/deck-creator/README.md) |
 
 Each PyPI package is a local standard input/output (stdio) bridge to a hosted service. Workflow
 steps, references, templates, and policy content remain hosted.
 
-## Prerequisites
+### Prerequisites
 
-1. Kiro IDE, the documented and tested client. Other stdio MCP clients may require client-specific
-   command, environment-variable, and variable-expansion configuration.
-2. [uv](https://docs.astral.sh/uv/getting-started/installation/) for `uvx`.
-3. Python 3.10 or later (`uv python install 3.10`).
-4. An access key supplied by the deploying organization or service owner.
-5. Outbound HTTPS to `*.execute-api.ap-southeast-7.amazonaws.com`.
+- Kiro IDE, the documented and tested client
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) and Python 3.10 or later
+- An access key from the deploying organization or service owner
+- Outbound HTTPS to `*.execute-api.ap-southeast-7.amazonaws.com`
+- For BPMN only: Node.js and the [draw.io MCP server](https://www.npmjs.com/package/@drawio/mcp)
 
-BPMN also requires Node.js and the
-[draw.io MCP server](https://www.npmjs.com/package/@drawio/mcp).
+Follow the [MCP client runbook](aidlc.kiro/mcp/RUNBOOK.md) for installation and verification. The
+repository sample [`mcp.json`](aidlc.kiro/mcp/mcp.json) enables all four AIDLC servers; remove entries
+you are not approved to use or do not need. A service owner may instead provide a reduced configuration.
+BPMN also requires the separate draw.io entry shown in its [installation guide](aidlc.kiro/mcp/bpmn-creator/README.md#installation).
 
-## Getting access
-
-Reading this repository requires no access key. The hosted services require a credential that the current
-bridge sends in the `x-api-key` request header. This repository does not document the service's
-complete authentication or authorization architecture and does not claim that the header alone
-provides authorization.
-
-No public key-request route is documented here. The deploying organization or service owner must
-provide organization-specific issuance, revocation, and support contacts. Do not share a key.
-Report a suspected disclosure through the private incident route supplied by the service owner.
-
-Every newly issued key has an expiry date: 7, 30, 60, or 90 days, or a custom date chosen by the
-service owner. A key is valid through its expiry date (Asia/Bangkok time) and is revoked by a job
-that runs daily at 00:00 Asia/Bangkok; from then on the service answers `403`. Keys issued before
-expiry was introduced have no date and do not expire. Request a replacement before the date.
-
-With the key, the service owner hands over an `mcp.json` that lists only the servers you need. It
-uses the `uvx` bridge by default; a direct URL form is also available (see [Installation](#installation)).
-
-![API key lifecycle: the service owner issues a key with an expiry date and hands over mcp.json; the client calls API Gateway with x-api-key; EventBridge Scheduler runs a Lambda every day at 00:00 Asia/Bangkok that disables keys past their date](docs/diagrams/key-lifecycle.drawio.png)
-
-## Installation
-
-Store the key in a protected local file. The following zsh commands prompt without displaying or
-recording the key in shell history:
-
-```bash
-# macOS, Linux, and WSL with zsh
-mkdir -p ~/.aidlc
-read -rs "MCP_API_TOKEN?Access key: " && printf '\n'
-printf '%s' "$MCP_API_TOKEN" > ~/.aidlc/mcp-token
-unset MCP_API_TOKEN
-chmod 600 ~/.aidlc/mcp-token
-echo 'export MCP_API_TOKEN=$(cat ~/.aidlc/mcp-token)' >> ~/.zshrc
-source ~/.zshrc
-```
-
-For Kiro launched from Finder or the Dock on macOS, `.zshrc` is not sufficient. Set the variable
-for the current graphical login session, then quit Kiro with `Cmd+Q` and reopen it:
-
-```bash
-launchctl setenv MCP_API_TOKEN "$(cat ~/.aidlc/mcp-token)"
-```
-
-On Windows, enter the key at the secure prompt rather than placing it in the command history:
-
-```powershell
-$secureKey = Read-Host "Access key" -AsSecureString
-$key = [System.Net.NetworkCredential]::new("", $secureKey).Password
-[Environment]::SetEnvironmentVariable("MCP_API_TOKEN", $key, "User")
-Remove-Variable key, secureKey
-```
-
-The setting affects future processes. Close all Kiro windows, confirm no Kiro process remains in
-Task Manager, and reopen it; sign out or restart Windows if necessary.
-
-Merge [`aidlc.kiro/mcp/mcp.json`](aidlc.kiro/mcp/mcp.json) into Kiro's user or project MCP
-configuration. Add `MCP_API_TOKEN` to `kiroAgent.mcpApprovedEnvVars`. Keep
-`${MCP_API_TOKEN}` in `mcp.json`; do not paste the raw key into that file.
-
-Clients that support remote MCP servers can skip the bridge and connect straight to the endpoint.
-Each entry then uses `url` and sends the key in the `x-api-key` header:
-
-```json
-"aidlc.devsecops-cicd": {
-  "url": "https://8a3gpe2ji0.execute-api.ap-southeast-7.amazonaws.com/v1/devsecops-cicd/mcp",
-  "headers": { "x-api-key": "${MCP_API_TOKEN}" },
-  "disabled": false
-}
-```
-
-The provided configuration uses `@latest`. Use an exact version such as
-`"aidlc.devsecops-cicd-mcp==1.0.0"` for reproducible team or CI configuration. Full platform setup,
-verification, upgrade, and rotation procedures are in the [runbook](aidlc.kiro/mcp/RUNBOOK.md).
-
-## Usage
-
-Describe the intended result in chat. For example:
+Describe the intended result in chat, for example:
 
 ```text
 Prepare repo my-org/my-service for the development pipeline
 Build a documentation site from ./ATXDocumentation
-Map the leave request process as BPMN
+Map the leave-request process as BPMN
 Build an executive summary from .kiro/specs/order-service
 ```
 
-The servers share a common core tool pattern, not identical sessions. All provide start, step,
-status, run-log, request-draft, catalogue, reference, and asset operations. DevSecOps, HTML, and
-deck provide human gate confirmation. BPMN is the exception: it performs review in workflow step 6
-and has no `gate_confirm` tool. See the [MCP overview](aidlc.kiro/mcp/README.md) for the tool matrix.
+## Getting access
+
+Reading this repository requires no credential. Hosted services require an access key supplied by
+the deploying organization or service owner. No public key-request or guaranteed support route is
+documented here. The service owner must provide issuance, expiry, rotation, revocation, and incident
+contacts. Never share a key or commit it to source control. See the runbook section on
+[key rotation and revocation](aidlc.kiro/mcp/RUNBOOK.md#7-rotate-or-revoke-a-key).
 
 ## Architecture and operational boundary
 
-![Registry architecture: the MCP client and uvx bridge on the local machine call API Gateway with x-api-key; four Lambda MCP servers keep sessions in DynamoDB and hand out S3 presigned URLs; Git push, read-only AWS discovery and the team pipeline stay on the team side](docs/diagrams/registry-architecture.drawio.png)
+![Registry architecture: the local MCP client and uvx bridge call API Gateway; four hosted workflow servers manage sessions and assets; Git, local AWS discovery, and the delivery pipeline remain on the team side](docs/diagrams/registry-architecture.drawio.png)
 
-Diagram source: [`docs/diagrams/`](docs/diagrams/). The PNG files embed the draw.io diagram, so they open and edit directly in draw.io.
+Diagram sources are in [`docs/diagrams/`](docs/diagrams/). The PNG files embed draw.io data and can
+be opened directly in draw.io.
 
-The local client or assistant may run read-only AWS commands with credentials on the user's machine.
-The hosted MCP service does not receive those AWS credentials, call AWS on the user's behalf, push
-source code, or deploy. Source-control and deployment actions remain subject to local approval,
-repository permissions, and independent pipeline controls.
-
-Tools receive the arguments submitted by the client. For example,
-`cicd_changeset_validate` evaluates proposed change-set data sent in its arguments; it does not
-inspect local files remotely. Review the relevant server README before submitting content.
+- The local client may run approved commands with credentials available on the user's machine.
+- The hosted service does not receive local AWS credentials, run AWS commands on the user's behalf,
+  push source code, or deploy applications.
+- Tool arguments are sent to the hosted service over HTTPS. A validation tool evaluates only the
+  data supplied in its arguments; it does not inspect the local filesystem remotely.
+- File changes, builds, Git operations, and deployments remain under local approval and independent
+  repository and pipeline controls.
 
 ## Data handling and privacy
 
-JSON-RPC tool arguments are sent from the local bridge to the hosted service over HTTPS. Do not
-send secrets, credentials, or regulated or sensitive data unless your organization has approved
-the service for that use. This repository does not document retention, service-side logging, or
-data residency. Obtain those details from the service owner before submitting data with specific
-handling requirements.
+Do not send secrets, credentials, or regulated or sensitive data unless the organization has
+approved the service for that use. This repository does not document retention, service-side
+logging, or data-residency guarantees. Obtain those details from the service owner before submitting
+data with specific handling requirements.
 
 ## Environment variables
 
@@ -222,33 +159,18 @@ handling requirements.
 | `MSCLABS_MCP_BASE_URL` | Alternative service deployment | CoE endpoint |
 | `MSCLABS_MCP_TIMEOUT` | Request timeout in seconds | `120` |
 
-## Troubleshooting
-
-| Symptom | Guidance |
-| --- | --- |
-| `Dynamic Client Registration rejected (HTTP 404)` | Confirm Kiro received the variable, approved its name, and was fully restarted |
-| `No API key` | Neither supported access-key variable reached the bridge |
-| `403 … the API key was rejected` | Check for a truncated, mistyped, revoked, or expired key; request a replacement if the expiry date has passed |
-| `429` | Retry with backoff; a per-key usage plan is possible, but shared API, stage, or account limits may also apply |
-| `could not reach the registry` | Check proxy, VPN, firewall, and DNS access |
-| `uvx: command not found` | Use the absolute `uvx` path or provide an appropriate `PATH` |
-| BPMN diagram is not created | Install and configure the separate draw.io MCP server |
-
-There is no documented unauthenticated health route. Use the `tools/list` key and connectivity
-check in the [runbook](aidlc.kiro/mcp/RUNBOOK.md#4-verify-connectivity-and-the-key).
-
 ## Getting help
 
-No guaranteed public support or private security contact is documented in this repository. Obtain
-those routes from the deploying organization or service owner. If public issues are enabled, never
-include credentials, sensitive tool arguments, or unredacted logs.
+Use the organization-specific support and incident routes supplied by the service owner. If public
+issues are enabled, never include credentials, sensitive tool arguments, internal identifiers, or
+unredacted logs.
 
 ## Contributing
 
-Delivery teams propose changes through the review route established by their organization. New
-compliance packs belong under `aidlc.kiro/steering/security-requirements/<pack>/` and must state
-both their coverage and limitations. Do not add secrets, credentials, account identifiers, ARNs,
-or internal endpoints to this public repository.
+Open a reviewed change against `main` through the route established by your organization. New
+compliance packs belong under `aidlc.kiro/steering/security-requirements/<pack>/` and must describe
+both coverage and limitations. Do not add secrets, credentials, account identifiers, Amazon
+Resource Names (ARNs), private network identifiers, or internal endpoints to this public repository.
 
 ## License
 

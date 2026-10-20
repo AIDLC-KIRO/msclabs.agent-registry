@@ -1,29 +1,33 @@
-# Minimal Engineering Approach
+---
+inclusion: manual
+---
 
-## Core Principles
+# Minimal-Change Engineering Profile
 
-- **Keep it simple**: Write only the minimal code needed
-- **One file solutions**: Prefer single-file implementations
-- **Fix, don't bypass**: Fix existing solutions first
-- **No workarounds**: Don't build workarounds unless explicitly requested
-- **Essential files only**: Create only necessary files
+Use this optional profile for maintenance or narrowly scoped delivery where the goal is to solve the
+problem with the smallest coherent change. Do not use it to override architecture, security,
+compliance, or documentation requirements.
 
-## File Creation Guidelines
+## Principles
 
-- **Maximum 3-5 files** for most projects
-- **One README.md** with essential information only
-- **No separate documentation files** unless requested
-- **No helper scripts** unless absolutely necessary
+- **Solve the requested problem:** Avoid unrelated cleanup and speculative features.
+- **Preserve established design:** Reuse existing patterns unless they are the cause of the problem.
+- **Fix the cause:** Do not bypass validation, tests, policy checks, or failure handling.
+- **Keep the change coherent:** Create every file needed for clear ownership, testing, operation, and
+  maintenance; there is no arbitrary maximum file count.
+- **Minimize dependencies:** Add a dependency only when its value outweighs maintenance and security
+  cost.
 
-## Problem-Solving Approach
+## Decision process
 
-1. **First**: Try to fix the existing solution
-2. **Second**: Modify the current approach minimally
-3. **Last resort**: Create alternative solution (only if user requests it)
+1. Confirm the required behavior and current evidence.
+2. Identify the smallest existing component that owns the behavior.
+3. Modify that component and its directly affected tests or documentation.
+4. Add a new abstraction only when duplication, coupling, or a stable boundary justifies it.
+5. Run the most relevant validation and report anything not verified.
 
-## Code Guidelines
+## Avoid false minimalism
 
-- Write concise, focused code
-- Avoid over-abstraction
-- Keep functions small and direct
-- Minimize dependencies
+A one-file solution is not simpler when it mixes unrelated responsibilities or makes testing and
+operation harder. Keep separate files when the repository's architecture, security controls,
+deployment tooling, or maintainability require separation.

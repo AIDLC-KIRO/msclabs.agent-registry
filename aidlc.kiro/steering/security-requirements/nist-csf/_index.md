@@ -1,53 +1,65 @@
 ---
-inclusion: fileMatch
-fileMatchPattern: "**/*"
+inclusion: manual
 ---
 
 # NIST CSF Pack
 
-**Pack ID:** srp-am-nist-csf  
-**Description:** Security requirements derived from the NIST Cybersecurity Framework  
-**Total Requirements:** 37  
-**Source:** AWS Security Agent (Agent Spaces, ap-southeast-1)
+This file is a navigation catalogue for security requirements derived from the NIST Cybersecurity
+Framework. Open and review the linked files before selecting requirements for a project.
+
+| Field | Value |
+| --- | --- |
+| Pack ID | `srp-am-nist-csf` |
+| Requirements | 37 |
+| Producer | AWS Security Agent (Agent Spaces, `ap-southeast-1`) |
+| Framework version | Not documented in this repository |
+| Control mapping and review status | Not documented in this repository |
+
+> [!NOTE]
+> Applying this pack does not by itself demonstrate NIST CSF alignment, security assurance,
+> certification, or compliance. Validate the mapping and collect project evidence.
 
 ## Requirements
 
-| # | Name | Description |
-|---|------|-------------|
-| 1 | adverse-event-analysis-and-threat-intelligence-integration | Workloads should be designed to support the detection and analysis of anomalies,... |
-| 2 | ai-component-risk-assessment-and-security-integration | Workloads that incorporate AI or machine learning components — such as inference... |
-| 3 | compliance-driven-workload-security-design | Workload architectures should reflect a clear understanding of the legal, regula... |
-| 4 | comprehensive-logging-and-continuous-monitoring-coverage | Workloads should generate structured log records across all relevant components ... |
-| 5 | continuous-workload-cybersecurity-risk-management | Workload security posture should be treated as a living, continuously evolving s... |
-| 6 | forensic-readiness-and-evidence-integrity-for-workloads | Workloads should be designed to support forensic investigation by producing comp... |
-| 7 | holistic-cybersecurity-coverage-across-all-risk-functions | A workload's security architecture is expected to address cybersecurity risk man... |
-| 8 | incident-response-recovery-communication-planning | Workloads should incorporate a structured communication strategy as part of thei... |
-| 9 | least-privilege-and-separation-of-duties-for-workload-access | Workload access permissions, entitlements, and authorizations should be designed... |
-| 10 | platform-configuration-software-lifecycle-management | Workloads should be designed so that all platform components — including operati... |
-| 11 | privacy-cybersecurity-coordinated-risk-management | Workloads that collect, process, store, or transmit personal data should address... |
-| 12 | risk-informed-security-control-selection-and-prioritization | Workload security controls should be selected and prioritized through a structur... |
-| 13 | secure-software-development-lifecycle-integration | Workloads should be developed using security practices integrated throughout the... |
-| 14 | security-control-mapping-to-recognized-frameworks | Workload security designs are expected to align with and be traceable to recogni... |
-| 15 | security-design-consistency-and-repeatable-pattern-application | A workload's security architecture should apply security controls consistently a... |
-| 16 | sensitive-data-inventory-classification-and-flow-documentation | Workloads that process, store, or transmit sensitive data should maintain clear,... |
-| 17 | software-supply-chain-integrity-and-acquisition-verification | Workloads should verify the authenticity and integrity of software components, d... |
-| 18 | structured-incident-triage-escalation-and-recovery | Workloads should be supported by a structured incident response process that cov... |
-| 19 | structured-post-incident-recovery-and-return-to-operations | Workloads should be designed to support structured post-incident recovery operat... |
-| 20 | third-party-dependency-risk-assessment-and-governance | Workloads that depend on third-party suppliers, services, libraries, or componen... |
-| 21 | user-third-party-activity-monitoring-for-anomaly-detection | Workloads should incorporate monitoring of personnel activity and external servi... |
-| 22 | vulnerability-disclosure-and-change-risk-management | Workloads should incorporate structured processes for receiving, analyzing, and ... |
-| 23 | workload-asset-inventory-and-lifecycle-management | A workload should maintain a comprehensive, current inventory of all assets it o... |
-| 24 | workload-backup-integrity-and-recovery-verification | Workloads should implement a backup strategy that addresses the full lifecycle o... |
-| 25 | workload-continuous-monitoring-and-adverse-event-detection | Workloads should be designed with comprehensive, continuous monitoring capabilit... |
-| 26 | workload-cybersecurity-risk-assessment | Workloads should incorporate a structured cybersecurity risk assessment process ... |
-| 27 | workload-cybersecurity-risk-prioritization-action-planning | Workload architectures should incorporate a structured approach to identifying, ... |
-| 28 | workload-data-lifecycle-cia-protection | Workloads should protect the confidentiality, integrity, and availability of all... |
-| 29 | workload-identity-authentication-and-access-control | Workloads should define and enforce a comprehensive identity and access control ... |
-| 30 | workload-incident-containment-and-eradication-design | Workloads should be designed to support rapid containment and eradication of cyb... |
-| 31 | workload-incident-recovery-architecture-and-communication | Workloads should be designed with a documented incident recovery capability that... |
-| 32 | workload-incident-response-readiness | Workloads should be designed with built-in incident response readiness, ensuring... |
-| 33 | workload-infrastructure-resilience-architecture | Workload security architectures should be designed to protect asset confidential... |
-| 34 | workload-network-protection-and-continuous-monitoring | Workloads should be deployed within well-defined network boundaries that restric... |
-| 35 | workload-resilience-and-availability-architecture | Workloads should be designed with resilience mechanisms that protect against env... |
-| 36 | workload-risk-visibility-and-communication-design | Workloads should be designed to surface their security posture in a way that sup... |
-| 37 | workload-third-party-dependency-risk-management | Workloads that depend on external suppliers, third-party services, open-source c... |
+| # | Requirement |
+| --- | --- |
+| 1 | [adverse-event-analysis-and-threat-intelligence-integration](adverse-event-analysis-and-threat-intelligence-integration.md) |
+| 2 | [ai-component-risk-assessment-and-security-integration](ai-component-risk-assessment-and-security-integration.md) |
+| 3 | [compliance-driven-workload-security-design](compliance-driven-workload-security-design.md) |
+| 4 | [comprehensive-logging-and-continuous-monitoring-coverage](comprehensive-logging-and-continuous-monitoring-coverage.md) |
+| 5 | [continuous-workload-cybersecurity-risk-management](continuous-workload-cybersecurity-risk-management.md) |
+| 6 | [forensic-readiness-and-evidence-integrity-for-workloads](forensic-readiness-and-evidence-integrity-for-workloads.md) |
+| 7 | [holistic-cybersecurity-coverage-across-all-risk-functions](holistic-cybersecurity-coverage-across-all-risk-functions.md) |
+| 8 | [incident-response-recovery-communication-planning](incident-response-recovery-communication-planning.md) |
+| 9 | [least-privilege-and-separation-of-duties-for-workload-access](least-privilege-and-separation-of-duties-for-workload-access.md) |
+| 10 | [platform-configuration-software-lifecycle-management](platform-configuration-software-lifecycle-management.md) |
+| 11 | [privacy-cybersecurity-coordinated-risk-management](privacy-cybersecurity-coordinated-risk-management.md) |
+| 12 | [risk-informed-security-control-selection-and-prioritization](risk-informed-security-control-selection-and-prioritization.md) |
+| 13 | [secure-software-development-lifecycle-integration](secure-software-development-lifecycle-integration.md) |
+| 14 | [security-control-mapping-to-recognized-frameworks](security-control-mapping-to-recognized-frameworks.md) |
+| 15 | [security-design-consistency-and-repeatable-pattern-application](security-design-consistency-and-repeatable-pattern-application.md) |
+| 16 | [sensitive-data-inventory-classification-and-flow-documentation](sensitive-data-inventory-classification-and-flow-documentation.md) |
+| 17 | [software-supply-chain-integrity-and-acquisition-verification](software-supply-chain-integrity-and-acquisition-verification.md) |
+| 18 | [structured-incident-triage-escalation-and-recovery](structured-incident-triage-escalation-and-recovery.md) |
+| 19 | [structured-post-incident-recovery-and-return-to-operations](structured-post-incident-recovery-and-return-to-operations.md) |
+| 20 | [third-party-dependency-risk-assessment-and-governance](third-party-dependency-risk-assessment-and-governance.md) |
+| 21 | [user-third-party-activity-monitoring-for-anomaly-detection](user-third-party-activity-monitoring-for-anomaly-detection.md) |
+| 22 | [vulnerability-disclosure-and-change-risk-management](vulnerability-disclosure-and-change-risk-management.md) |
+| 23 | [workload-asset-inventory-and-lifecycle-management](workload-asset-inventory-and-lifecycle-management.md) |
+| 24 | [workload-backup-integrity-and-recovery-verification](workload-backup-integrity-and-recovery-verification.md) |
+| 25 | [workload-continuous-monitoring-and-adverse-event-detection](workload-continuous-monitoring-and-adverse-event-detection.md) |
+| 26 | [workload-cybersecurity-risk-assessment](workload-cybersecurity-risk-assessment.md) |
+| 27 | [workload-cybersecurity-risk-prioritization-action-planning](workload-cybersecurity-risk-prioritization-action-planning.md) |
+| 28 | [workload-data-lifecycle-cia-protection](workload-data-lifecycle-cia-protection.md) |
+| 29 | [workload-identity-authentication-and-access-control](workload-identity-authentication-and-access-control.md) |
+| 30 | [workload-incident-containment-and-eradication-design](workload-incident-containment-and-eradication-design.md) |
+| 31 | [workload-incident-recovery-architecture-and-communication](workload-incident-recovery-architecture-and-communication.md) |
+| 32 | [workload-incident-response-readiness](workload-incident-response-readiness.md) |
+| 33 | [workload-infrastructure-resilience-architecture](workload-infrastructure-resilience-architecture.md) |
+| 34 | [workload-network-protection-and-continuous-monitoring](workload-network-protection-and-continuous-monitoring.md) |
+| 35 | [workload-resilience-and-availability-architecture](workload-resilience-and-availability-architecture.md) |
+| 36 | [workload-risk-visibility-and-communication-design](workload-risk-visibility-and-communication-design.md) |
+| 37 | [workload-third-party-dependency-risk-management](workload-third-party-dependency-risk-management.md) |
+
+The index itself uses `manual` inclusion. Each linked requirement currently uses `fileMatch` with
+`fileMatchPattern: "**/*"`; once copied, it can apply whenever any file is in context.

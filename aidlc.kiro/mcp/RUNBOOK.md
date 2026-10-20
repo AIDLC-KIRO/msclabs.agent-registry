@@ -96,13 +96,18 @@ The bridge checks `MCP_API_TOKEN` first and `MSCLABS_MCP_TOKEN` second.
 
 ### 3.1 MCP configuration
 
-Run `Kiro: Open user MCP config (JSON)` from the command palette. Merge the four entries from
-[`mcp.json`](mcp.json) into the existing `mcpServers` object. Do not create a nested second
-`mcpServers` object, and do not replace `${MCP_API_TOKEN}` with a raw key.
+Run `Kiro: Open user MCP config (JSON)` from the command palette. The repository sample
+[`mcp.json`](mcp.json) enables all four AIDLC servers. Merge only the entries you are approved to use
+and actually need into the existing `mcpServers` object. A service owner may provide a reduced copy
+instead. Do not create a nested second `mcpServers` object, and do not replace
+`${MCP_API_TOKEN}` with a raw key.
+
+`bpmn-creator` also needs the separate draw.io server entry in the
+[BPMN installation guide](bpmn-creator/README.md#installation).
 
 To connect without the bridge, replace an entry's `command`/`args`/`env` with
 `"url": "https://8a3gpe2ji0.execute-api.ap-southeast-7.amazonaws.com/v1/<server>/mcp"` and
-`"headers": { "x-api-key": "${MCP_API_TOKEN}" }`. Keep only the servers you use.
+`"headers": { "x-api-key": "${MCP_API_TOKEN}" }`.
 
 When editing JSON from PowerShell, use UTF-8 encoding. A default `Set-Content` invocation can write
 an encoding that the client cannot read.
@@ -125,7 +130,9 @@ starts.
 
 ## 4. Verify connectivity and the key
 
-In Kiro's MCP Server view, the four servers should report Connected with 14, 14, 12, and 16 tools.
+In Kiro's MCP Server view, every configured AIDLC server should report Connected. The expected tool
+counts are 14 for DevSecOps, 14 for HTML, 12 for BPMN, and 16 for deck; a reduced configuration shows
+only the servers you selected.
 
 The service has no documented unauthenticated health endpoint. The following `tools/list` request
 checks network connectivity and whether the service accepts the supplied key; it does not establish

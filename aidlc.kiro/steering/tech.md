@@ -1,61 +1,63 @@
-# Tech Stack
+---
+inclusion: manual
+---
+
+# Optional TypeScript, React, and AWS Technology Profile
+
+> [!NOTE]
+> This is an opinionated profile for teams that have selected this stack. Reference it manually; do
+> not use it to override an existing repository's architecture, approved technology standards, or
+> workload constraints.
 
 ## Backend
 
-- **Runtime:** Node.js with TypeScript
-- **Framework:** Express.js or Fastify (prefer Fastify for performance)
-- **Language:** TypeScript (strict mode enabled)
-- **API Style:** REST or GraphQL depending on use case
-- **Validation:** Zod for runtime type validation
+- **Runtime and language:** Node.js with TypeScript in strict mode
+- **Framework:** Express or Fastify; choose from measured needs and team supportability
+- **API style:** REST or GraphQL according to the product contract
+- **Runtime validation:** Zod or the validation library already established by the project
 
 ## Frontend
 
-- **Framework:** React.js with TypeScript
-- **Styling:** Tailwind CSS
-- **Build Tool:** Vite
-- **State Management:** React Query (server state), Zustand (client state)
-- **Routing:** React Router v6+
+- **Framework:** React with TypeScript
+- **Build tool:** Vite
+- **Styling:** Tailwind CSS when it matches the product's design-system approach
+- **Server state:** TanStack Query
+- **Client state:** Local React state first; Zustand when shared client state warrants it
+- **Routing:** The current supported React Router release selected by the project
 
-## Database
+## Data and caching
 
-- **Primary:** PostgreSQL
-- **ORM/Query Builder:** Prisma
-- **Migrations:** Managed via ORM migration tooling
+- **Relational database:** PostgreSQL, Amazon RDS for PostgreSQL, or Aurora PostgreSQL
+- **Data access:** Prisma or the query tool already established by the project
+- **Cache and messaging:** Amazon ElastiCache for Valkey or Redis OSS when a measured requirement
+  justifies caching, rate limiting, session storage, or pub/sub
+- **Migrations:** Version and review schema changes with the application's migration tooling
 
-## Cache
+## AWS deployment options
 
-- **Engine:** Redis
-- **Use Cases:** Session storage, API response caching, rate limiting, pub/sub
+Choose from workload requirements rather than a universal default:
 
-## Application Architecture
+| Pattern | Good fit | Important considerations |
+| --- | --- | --- |
+| AWS Lambda and API Gateway | Event-driven or request-driven work with bounded execution | Cold starts, service quotas, timeout, concurrency, and externalized durable state |
+| Containers on ECS Fargate | Long-running services, workers, or workloads needing container-level control | Scaling, health checks, patching, image lifecycle, and load balancing |
 
-- **Style:** Modern containerized or serverless
-- **Container:** Docker + ECS Fargate (preferred for long-running services)
-- **Serverless:** AWS Lambda + API Gateway (preferred for event-driven workloads)
-- **Decision Criteria:**
-  - Use containers for stateful or long-running processes
-  - Use serverless for short-lived, event-driven, or low-traffic endpoints
+Keep durable application state outside compute instances for both patterns. Evaluate availability,
+latency, traffic shape, operational skills, security, and cost before choosing.
 
-## Cloud Platform
+## Infrastructure and delivery
 
-- **Provider:** AWS
-- **Infrastructure as Code:** Terraform or AWS CDK
-- **Key Services:**
-  - Compute: ECS Fargate / AWS Lambda
-  - Database: Amazon RDS (PostgreSQL) / Aurora PostgreSQL
-  - Cache: Amazon ElastiCache (Redis)
-  - Storage: Amazon S3
-  - CDN: Amazon CloudFront
-  - DNS: Amazon Route 53
-  - Secrets: AWS Secrets Manager
-  - Monitoring: Amazon CloudWatch
-  - CI/CD: AWS CodePipeline or GitHub Actions
+- **Infrastructure as code:** Use the organization's supported option: AWS SAM, CloudFormation, AWS
+  CDK, or Terraform.
+- **Common services:** Amazon S3, CloudFront, Route 53, Secrets Manager, and CloudWatch as required.
+- **CI/CD:** AWS CodePipeline, GitHub Actions, or the delivery platform approved for the repository.
+- **Configuration:** Store environment-specific configuration outside source code; never hard-code
+  secrets.
 
-## Conventions
+## Coding conventions
 
-- Use ES Modules (`import/export`) not CommonJS
-- Use `async/await` over raw Promises
-- All environment config via environment variables (never hardcoded)
-- Prefer composition over inheritance
-- Write small, focused functions with single responsibility
-- All API responses use consistent JSON envelope: `{ data, error, meta }`
+- Follow conventions already present in the repository before applying this profile.
+- Prefer ES modules and `async`/`await` when supported by the selected runtime and build system.
+- Prefer composition over inheritance where it keeps behavior easier to test and understand.
+- Keep functions focused, but do not split code solely to satisfy an arbitrary size target.
+- Define API response and error shapes in the API contract; apply them consistently once selected.

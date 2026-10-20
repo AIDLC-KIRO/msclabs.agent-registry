@@ -1,69 +1,86 @@
 # Steering
 
-The organisation's standards, as files an assistant reads while it works. The AI-DLC Center of
-Excellence owns these; delivery teams copy what applies to their project into
-`.kiro/steering/` and work under them.
+Steering files give an assistant standing project context while it works. The AI-DLC Center of
+Excellence (CoE) maintains the shared standards in this registry; delivery teams review and copy
+only the files that apply to their workload.
 
-Steering adds standing context to every request, or to requests that match a condition. It is the
-first of the three layers of control described in the
-[root README](../../README.md#how-governance-flows): steering shapes what gets written, the
-hosted workflows hold the gates, and the pipeline decides what ships. Steering guides rather than
-enforces — it is files in a workspace, and a team can change them. That is why anything that must
-be binding lives in [`../mcp`](../mcp) as a hosted server instead.
+Steering is guidance, not an enforcement boundary. It is the first layer described in
+[How governance works](../../README.md#how-governance-works): steering shapes output, hosted MCP
+workflows standardize processes and record human decisions, and repository or CI/CD controls decide
+what can merge or deploy.
 
-## What's here
+## Choose what to use
 
-| Directory | Contents | Inclusion |
+| Need | Start with | Inclusion |
 | --- | --- | --- |
-| [`guardrails/`](guardrails/) | The non-negotiables: source code is the source of truth, no invented facts | `always` |
-| [`security-requirements/`](security-requirements/) | 129 security requirements in four packs, each with an `_index.md` | `fileMatch` `**/*` |
-| [`best-practices/`](best-practices/) | Twelve-Factor, Terraform practices, Well-Architected context | `fileMatch` |
-| [`development-practices/`](development-practices/) | Assessment, code, design, JavaScript and React conventions | `fileMatch` |
-| [`project-standards/`](project-standards/) | Git commit standards, minimal-engineering approach | `fileMatch` |
-| [`team-collaboration/`](team-collaboration/) | Spec-driven development in a team | `fileMatch` |
-| `tech.md` | A Node.js/TypeScript stack opinion | `always` (no frontmatter) |
-| `devsecops/`, `knowledge-bases/` | Placeholders, no entries yet | — |
+| Evidence-based assistant behavior | [`guardrails/guardrails.md`](guardrails/guardrails.md) | `always` |
+| Workload security requirements | [`security-requirements/`](security-requirements/) | Requirement files use `fileMatch` with `**/*` |
+| Architecture and operations guidance | [`best-practices/`](best-practices/) | `fileMatch` |
+| Language, framework, and design conventions | [`development-practices/`](development-practices/) | `fileMatch` |
+| Git and change-size guidance | [`project-standards/`](project-standards/) | Mixed; review each file |
+| Spec-driven team delivery | [`team-collaboration/`](team-collaboration/) | Mixed; review each file |
+| Optional TypeScript/React/AWS stack profile | [`tech.md`](tech.md) | `manual` |
+
+The `devsecops/` and `knowledge-bases/` directories are placeholders and have no entries.
 
 ### Security requirement packs
 
-| Pack | Requirements | Source |
+| Pack | Requirements | Scope |
 | --- | --- | --- |
-| [`asa-base-pack/`](security-requirements/asa-base-pack/) | 10 | AWS Security Agent base pack — authentication, authorization, audit logging, secret protection, tenant isolation, trusted cryptography |
-| [`aws-well-architected/`](security-requirements/aws-well-architected/) | 32 | Well-Architected security pillar — encryption, segmentation, least privilege, key and credential management, threat modelling |
-| [`nist-csf/`](security-requirements/nist-csf/) | 37 | NIST Cybersecurity Framework — identify, protect, detect, respond, recover |
-| [`pci-dss/`](security-requirements/pci-dss/) | 50 | PCI DSS — cardholder data scope, CDE segmentation, logging, key management, secure development |
+| [ASA base pack](security-requirements/asa-base-pack/_index.md) | 10 | Authentication, authorization, audit logging, secret protection, tenant isolation, cryptography |
+| [AWS Well-Architected](security-requirements/aws-well-architected/_index.md) | 32 | Well-Architected security guidance |
+| [NIST CSF](security-requirements/nist-csf/_index.md) | 37 | Identify, protect, detect, respond, and recover |
+| [PCI DSS](security-requirements/pci-dss/_index.md) | 50 | Payment-data scope, segmentation, logging, key management, secure development |
 
-Each pack's `_index.md` lists its requirements. Start there rather than loading a whole pack.
+Each `_index.md` is a navigation page. Open it to review the pack, then select the linked requirement
+files that apply; copying only the index does not apply the requirements.
 
-> [!NOTE]
-> Every file in the four packs declares `fileMatch` with `fileMatchPattern: "**/*"`, which matches
-> any file in context — effectively always on. Copying all 129 into one project puts a large
-> amount of standing text in front of every request. Take the packs, or the individual
-> requirements, that your workload is actually assessed against.
+> [!CAUTION]
+> Every requirement file currently declares `fileMatchPattern: "**/*"`. Once copied, it can appear
+> in context for any file. Do not install all 129 requirements by default. Select a pack or individual
+> requirements only after the workload's security and compliance scope has been assessed.
 
-## Installation
+## Install selected files
 
-Copy what you need to `.kiro/steering/` for one project, or `~/.kiro/steering/` for every
-project. Directory structure is preserved; Kiro reads the tree.
+Run these examples from the root of a cloned registry. Replace `/path/to/project` with the target
+project directory.
 
 ```bash
-# one pack
-cp -R aidlc.kiro/steering/security-requirements/pci-dss \
-      your-project/.kiro/steering/security-requirements/
+PROJECT=/path/to/project
+mkdir -p "$PROJECT/.kiro/steering/security-requirements/pci-dss"
 
-# the guardrails, which most teams want everywhere
+# Copy shared guardrails.
+cp -R aidlc.kiro/steering/guardrails "$PROJECT/.kiro/steering/"
+
+# Example: copy one requirement selected during the workload assessment.
+REQUIREMENT=network-security-controls-for-traffic-segmentation.md
+cp "aidlc.kiro/steering/security-requirements/pci-dss/$REQUIREMENT" \
+   "$PROJECT/.kiro/steering/security-requirements/pci-dss/"
+```
+
+Copy an entire pack only when the workload assessment says that every requirement in that pack is
+in scope.
+
+For a global installation, copy only rules that genuinely apply to every project:
+
+```bash
+mkdir -p ~/.kiro/steering
 cp -R aidlc.kiro/steering/guardrails ~/.kiro/steering/
 ```
 
-Commit what you copy. The standards a project was built under should be recorded with the
-project, not inferred later from whatever the registry happens to say at the time. Start a new
-session afterwards; a running one does not pick up newly copied steering.
+Before starting a new Kiro session:
 
-Taking an update is the same copy again. If you would rather track the registry as a dependency,
-add it as a git submodule and point your steering paths into it — either pattern works, as long
-as the team uses one consistently.
+1. Read every selected file and confirm that its scope matches the project.
+2. Remove optional or conflicting rules instead of copying them blindly.
+3. Commit project-level steering so the applicable version is recorded with the codebase.
+4. Start a new session so Kiro loads the newly copied steering.
 
-## Writing a steering file
+To track the registry as a dependency, a team may use a Git submodule instead of copying files. Pick
+one update model and apply it consistently.
+
+## Inclusion modes
+
+A steering file can declare when Kiro loads it:
 
 ```markdown
 ---
@@ -74,19 +91,23 @@ fileMatchPattern: "buildspec/*.yml"
 
 | Value | When it applies |
 | --- | --- |
-| `always` | Every request. The default when frontmatter is absent |
+| `always` | Every request; also the default when frontmatter is absent |
 | `fileMatch` | When a file matching `fileMatchPattern` is in context |
-| `manual` | Only when referenced with `#` in chat |
-| `auto` | When the request matches the file's `description`; needs `name` and `description` too |
+| `manual` | Only when referenced explicitly with `#` in chat |
+| `auto` | When the request matches `description`; also requires `name` and `description` |
 
-A steering file can pull in another document with `#[[file:<relative-path>]]`, which is how an
-OpenAPI or GraphQL schema can influence generated code without being pasted into a prompt.
+A steering file can include another document with `#[[file:<relative-path>]]`. This lets a schema or
+other maintained source influence generated code without duplicating it in the steering file.
+
+## Write and review steering
+
+- Prefer `fileMatch`, `auto`, or `manual` over `always` unless a rule genuinely applies to every task.
+- State the intended audience, scope, exceptions, and source of authority.
+- Keep workload-specific safety rules separate from organization-wide behavior rules.
+- Avoid hard-coded account IDs, ARNs, VPC or subnet IDs, internal URLs, and credentials.
+- Re-read copied steering when upgrading; registry changes do not automatically update project copies.
 
 ## Contributing
 
-Open a pull request against `main`. Steering here has to be a standard any team can apply.
-Organisation-specific values — account IDs, ARNs, VPC and subnet IDs, internal URLs — belong in
-your own repository's steering, not in a public registry.
-
-Prefer `fileMatch` or `auto` over `always` unless the content genuinely applies to every request.
-Everything marked `always` is paid for on every turn.
+Open a reviewed change against `main`. Content in this public registry must be reusable across teams.
+Organization-specific identifiers and internal endpoints belong in private project steering, not here.

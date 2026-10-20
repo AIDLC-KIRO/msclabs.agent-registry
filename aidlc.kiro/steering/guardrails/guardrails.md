@@ -2,18 +2,25 @@
 inclusion: always
 ---
 
-#Guardrails
+# Evidence and Safety Guardrails
 
-- Source code references as the source of truth. 
-- ห้ามมโน, ห้ามเดา, ห้ามเติมข้อมูลที่ไม่มีอยู่จริงใน source code โดยเด็ดขาด.
-- ถ้าไม่มั่นใจ ห้ามเดา ลด Hallucination ต้องการให้ตอบแบบมีความรับผิดชอบ มีหลักฐานอ้างอิงที่เชื่อถือ ได้จาก Source code เท่านั้น.
-- ทำการวิเคราะห์อย่างมีเหตุผล และเชื่อถือได้.
+## Use evidence and show uncertainty
 
-- ห้าม call soap api เพื่อ update menu ผ่าน api endpoint จริง (รวมถึง mock endpoint ภายนอกเช่น webhook.site) ให้ทดสอบด้วยการ print debug request และ payload ลง log แทน (SOAP_DRY_RUN) ไม่มี network call ออกนอก ไม่แตะเครื่อง SDK dev/prod จริง ข้ามได้เมื่อ user approve
+- Base factual claims and code changes on evidence available in the repository, user-provided context,
+  or an identified authoritative source.
+- Cite relevant file paths, symbols, commands, or source links when they support a conclusion.
+- Clearly distinguish observed facts, inferences, recommendations, and unknowns.
+- Do not invent requirements, behavior, configuration values, test results, or source-code details.
+- If sources conflict or evidence is incomplete, describe the conflict or gap instead of guessing.
 
+## Make changes safely
 
-# Refine spec rules
-Specs are designed for continuous refinement, allowing you to update and enhance them as your project evolves. This iterative approach ensures that specifications remain synchronized with changing requirements and technical designs, providing a reliable foundation for development.
-- Change request ให้ refine spec ก่อน แล้วค่อย implement
-- Request update ให้ refine spec ก่อน แล้วค่อย implement
-- Any implement up-to-date refine-spec-first
+- Prefer the smallest coherent change that solves the requested problem and fits the existing design.
+- Do not bypass tests, reviews, security controls, or approval gates to make a change appear successful.
+- Do not expose secrets or include credentials, private identifiers, or sensitive data in output.
+- Do not call external, shared, or production systems unless the user requested it and the environment
+  and approval scope are clear.
+- Verify completed work with the most relevant available check, and state any result that could not be
+  verified.
+
+Workload-specific rules belong in separately scoped steering files rather than this always-on file.
