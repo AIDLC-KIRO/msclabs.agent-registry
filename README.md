@@ -124,9 +124,23 @@ Build an executive summary from .kiro/specs/order-service
 
 Reading this repository requires no credential. Hosted services require an access key supplied by
 the deploying organization or service owner. No public key-request or guaranteed support route is
-documented here. The service owner must provide issuance, expiry, rotation, revocation, and incident
-contacts. Never share a key or commit it to source control. See the runbook section on
+documented here. Never share a key or commit it to source control. See
 [key rotation and revocation](aidlc.kiro/mcp/RUNBOOK.md#7-rotate-or-revoke-a-key).
+
+Before onboarding a user or automated job, the service owner should provide this deployment handoff:
+
+| Item | Required information |
+| --- | --- |
+| Ownership | Service owner/team and approved key-request route |
+| Incident response | Private route for suspected disclosure or misuse |
+| Access scope | Approved MCP servers and intended user/job |
+| Endpoint and client | Deployment endpoint, supported client, and approved package pins |
+| Key lifecycle | Expiry, time zone, rotation, revocation, and replacement process |
+| Data handling | Approved data classifications and any prohibited content |
+| Support | Support route, operating hours, and expected escalation path |
+
+Keep deployment-specific contacts, credentials, and internal endpoints in an approved private system,
+not in this public repository.
 
 ## Architecture and operational boundary
 

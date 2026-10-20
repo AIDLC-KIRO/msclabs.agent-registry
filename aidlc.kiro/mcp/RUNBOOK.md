@@ -37,41 +37,61 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 Use a separate key for each person or automated job where the service owner supports that model.
 Do not put a raw key in `mcp.json` or commit it to source control.
 
-### 2.1 macOS and zsh terminal sessions
+### 2.1 macOS
 
-The following setup prompts without displaying or recording the key in shell history, stores it in
-a mode-600 file, and makes the variable available to new zsh terminal sessions:
+Use an organization-approved secret manager when one is available. The macOS Keychain is the local
+default below; it avoids keeping the key in a project file, shell history, or plaintext dotfile.
+
+Store or replace the key in Keychain:
 
 ```bash
-mkdir -p ~/.aidlc
 read -rs "MCP_API_TOKEN?Access key: " && printf '\n'
-printf '%s' "$MCP_API_TOKEN" > ~/.aidlc/mcp-token
+security add-generic-password -U -a "$USER" -s aidlc-mcp-access-key -w "$MCP_API_TOKEN"
 unset MCP_API_TOKEN
-chmod 600 ~/.aidlc/mcp-token
-echo 'export MCP_API_TOKEN=$(cat ~/.aidlc/mcp-token)' >> ~/.zshrc
-source ~/.zshrc
 ```
 
-A graphical application launched from Finder or the Dock does not normally inherit `.zshrc`.
-Before launching Kiro from the graphical interface, set the variable for the current macOS login
-session:
+For a Kiro process launched from Finder or the Dock, load the value into the current graphical login
+session, then quit Kiro with `Cmd+Q` and reopen it:
 
 ```bash
-launchctl setenv MCP_API_TOKEN "$(cat ~/.aidlc/mcp-token)"
+launchctl setenv MCP_API_TOKEN \
+  "$(security find-generic-password -a "$USER" -s aidlc-mcp-access-key -w)"
 ```
 
-Quit Kiro with `Cmd+Q` before reopening it. Repeat `launchctl setenv` after signing out or restarting
-macOS, unless your organization provides an approved persistent secret-management method.
-Alternatively, launch Kiro from a terminal that already has the variable:
+Environment variables are visible to processes running as the same logged-in user. Do not use this
+method on a shared or untrusted account. If your organization provides managed secret injection,
+use that instead. To remove the login-session value and the Keychain item:
 
 ```bash
+launchctl unsetenv MCP_API_TOKEN
+security delete-generic-password -a "$USER" -s aidlc-mcp-access-key
+```
+
+Alternatively, retrieve the key into a trusted terminal session and launch Kiro from that terminal:
+
+```bash
+export MCP_API_TOKEN="$(security find-generic-password -a "$USER" -s aidlc-mcp-access-key -w)"
 kiro ~/path/to/your/project
+unset MCP_API_TOKEN
 ```
 
 ### 2.2 Linux and WSL
 
-Use the zsh commands above when zsh is your shell. For another shell, place the equivalent export in
-that shell's startup file and start the MCP client from an environment that receives it.
+Use the organization-approved secret manager or credential-injection mechanism for your environment.
+Do not persist the raw key in a shell startup file. If no approved integration is available, use a
+trusted Bash terminal for the current session only:
+
+```bash
+read -r -s -p "Access key: " MCP_API_TOKEN && printf '\n'
+export MCP_API_TOKEN
+kiro ~/path/to/your/project
+unset MCP_API_TOKEN
+```
+
+For zsh, use `read -rs "MCP_API_TOKEN?Access key: "` instead of the Bash `read` line.
+
+The variable remains available to Kiro and child processes started from that terminal until the
+session ends. Avoid this fallback on shared machines, and clear the variable when Kiro exits.
 
 ### 2.3 Windows
 
@@ -96,14 +116,19 @@ The bridge checks `MCP_API_TOKEN` first and `MSCLABS_MCP_TOKEN` second.
 
 ### 3.1 MCP configuration
 
-Run `Kiro: Open user MCP config (JSON)` from the command palette. The repository sample
-[`mcp.json`](mcp.json) enables all four AIDLC servers. Merge only the entries you are approved to use
-and actually need into the existing `mcpServers` object. A service owner may provide a reduced copy
-instead. Do not create a nested second `mcpServers` object, and do not replace
-`${MCP_API_TOKEN}` with a raw key.
+Run `Kiro: Open user MCP config (JSON)` from the command palette. [`mcp.json`](mcp.json) is an
+all-server example with all four AIDLC servers enabled; it is not a least-privilege baseline. Merge
+only the entries you are approved to use and actually need, or set unused entries to
+`"disabled": true`. A service owner may provide a reduced copy instead. Do not create a nested
+second `mcpServers` object, and do not replace `${MCP_API_TOKEN}` with a raw key.
 
 `bpmn-creator` also needs the separate draw.io server entry in the
 [BPMN installation guide](bpmn-creator/README.md#installation).
+
+Direct URL configuration is an advanced alternative for clients that explicitly support remote MCP
+servers and header environment-variable expansion. It bypasses the stdio bridge, so bridge logging,
+timeout variables, and package pinning do not apply. Verify support in the client version approved by
+your organization before using it.
 
 To connect without the bridge, replace an entry's `command`/`args`/`env` with
 `"url": "https://8a3gpe2ji0.execute-api.ap-southeast-7.amazonaws.com/v1/<server>/mcp"` and
@@ -193,10 +218,10 @@ To update or roll back a pinned version:
 
 ## 7. Rotate or revoke a key
 
-Every newly issued key has an expiry date (7, 30, 60, or 90 days, or a custom date). The key is
-valid through that date in Asia/Bangkok time and is revoked by a daily job at 00:00 Asia/Bangkok,
-after which calls return `403`. Keys issued before expiry was introduced do not expire. Request a
-replacement before the date rather than after the first `403`.
+Expiry and revocation behavior is deployment-specific. Use the expiry date and time zone supplied
+with the key, and request a replacement before that deadline. Do not infer a grace period or rely on
+a particular revocation schedule unless the service owner has documented it for your deployment.
+A rejected, expired, or revoked key normally results in `403`.
 
 | Situation | Action |
 | --- | --- |

@@ -29,6 +29,7 @@ Open a pull request against `main`. A skill needs:
 - instructions that work without the authoring machine's context
 - no secret, account ID, ARN or internal endpoint
 
-Workflows that must enforce policy or hold an approval gate belong in [`../mcp`](../mcp) as a
-hosted server instead. A skill lives on a laptop and can be edited; a guardrail that can be
-edited by the person it constrains is not a guardrail.
+Workflows that must centralize versioned policy evaluation, shared references, or recorded human
+decisions belong in [`../mcp`](../mcp) as a hosted server instead. A local skill can be edited by its
+user, and an MCP human gate records a supplied decision; neither replaces repository permissions,
+required reviews, or CI/CD pipeline controls that enforce merge and deployment policy.

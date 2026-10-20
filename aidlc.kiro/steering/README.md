@@ -71,9 +71,25 @@ cp -R aidlc.kiro/steering/guardrails ~/.kiro/steering/
 Before starting a new Kiro session:
 
 1. Read every selected file and confirm that its scope matches the project.
-2. Remove optional or conflicting rules instead of copying them blindly.
-3. Commit project-level steering so the applicable version is recorded with the codebase.
-4. Start a new session so Kiro loads the newly copied steering.
+2. Record the registry commit, selected files, scope rationale, exclusions, conflicts, reviewer or
+   owner, and next review date in a project document such as `.kiro/steering-selection.md`.
+3. Remove optional or conflicting rules instead of copying them blindly.
+4. Commit project-level steering and the selection record so the applicable version is auditable.
+5. Start a new session so Kiro loads the newly copied steering.
+
+A minimal selection record can use this structure:
+
+```markdown
+# Steering selection
+
+- Registry commit: `<commit-sha>`
+- Scope: `<workload and environment>`
+- Selected: `<paths>`
+- Excluded: `<paths and rationale>`
+- Conflicts or exceptions: `<decision and owner>`
+- Reviewed by: `<role or team>`
+- Next review: `<date>`
+```
 
 To track the registry as a dependency, a team may use a Git submodule instead of copying files. Pick
 one update model and apply it consistently.

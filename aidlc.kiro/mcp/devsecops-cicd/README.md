@@ -94,14 +94,31 @@ in the [registry README](../../../README.md#environment-variables).
 
 ### Delivery pipeline
 
-The diagram shows the CoE reference blueprint for the pipeline that step 7 pushes into. The pipeline
-runs in a Shared Services account. Its stages are source, build, test, deploy and post-deploy, and
-the deploy action assumes a role to deploy cross-account into the workload account. Organization-wide
-security, compliance and governance controls apply to both accounts. The hosted server never runs
-the pipeline; the team's own pipeline controls decide whether a change is deployed. The account
-layout and the controls in place depend on the deploying organization.
+The live pipeline configuration is external to this public registry. The currently documented CoE
+implementation separates responsibility across three repositories:
 
-![DevSecOps CI/CD blueprint: GitHub source through CodeConnections into CodePipeline in a Shared Services account; CodeBuild build with Amazon ECR and KMS-encrypted artifacts; security gates for unit-test, secret-detection, sca-sbom, image-scan, AWS Security Agent code review and policy-gate; a cross-account deploy role into the workload account where CloudFormation or SAM deploys ECS Fargate or Lambda; post-deploy health checks; and organization-wide controls from Organizations SCPs, Control Tower, IAM permissions boundaries, KMS, CloudTrail, AWS Config, Security Hub and GuardDuty](../../../docs/diagrams/devsecops-cicd-pipeline.drawio.png)
+| Source | Responsibility |
+| --- | --- |
+| Application repository | Application source, IaC, and the `build`, `unit-test`, and `health-checks` buildspecs |
+| [`aidlc-gitops-coe`](https://github.com/AIDLC-Workshop-IRPC/aidlc-gitops-coe) | Runtime security and deployment buildspecs consumed by the pipeline |
+| `msclabs-devsecops-cicd` (CoE-internal) | Pipeline templates, app inventory, shared CodeBuild projects, IAM, and provisioning scripts |
+
+When enabled, the shared implementation follows `source → build → test → deploy → post-deploy`.
+Unit test, secret detection, and SCA/SBOM run first; optional code review follows; container pipelines
+can then run image scan. Deployment uses the container or serverless buildspec from
+`aidlc-gitops-coe`, and an enabled post-deploy stage runs the application-owned health check.
+Pipeline variants can remove individual actions, skip whole stages, or run security checks in
+report-only mode. Confirm the live parameters and action list before relying on a control.
+
+This is a descriptive integration model, not the source of truth for a live pipeline. Confirm the
+actual stages, enabled actions, account, Regions, and approval settings before acting. The checked
+templates implement cross-Region deployment within an account; they do not establish a generic
+cross-account deploy role or a separate `policy-gate` action. Organization-level controls may exist,
+but their presence must be verified with the deploying organization.
+
+The hosted MCP server never runs the pipeline, receives local AWS credentials, pushes source code,
+or deploys. It guides the local assistant and records workflow decisions; repository permissions and
+the team's pipeline remain the enforcement boundary.
 
 ## Usage
 

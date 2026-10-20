@@ -5,10 +5,10 @@ _ภาษาอื่น: [English](README.md)_
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
-Repository สาธารณะนี้เป็นจุดแจกจ่ายข้อกำหนดกลางสำหรับการพัฒนาซอฟต์แวร์ด้วย AI ซึ่งดูแลโดย
-AI-DLC Center of Excellence (CoE) ภายในมี Kiro steering ที่นำไปใช้ซ้ำได้ และเอกสาร client สำหรับ
-Model Context Protocol (MCP) workflow ที่ให้บริการจากส่วนกลาง 4 รายการ แต่ไม่มี source code ของ
-hosted service และไม่ได้บังคับนโยบายการ deploy ด้วยตัวเอง
+Repository สาธารณะนี้เป็นศูนย์กลางเผยแพร่มาตรฐานสำหรับการพัฒนาซอฟต์แวร์ด้วย AI ซึ่งดูแลโดย
+AI-DLC Center of Excellence (CoE) ภายในมี Kiro steering ที่นำไปใช้ซ้ำได้ และเอกสารสำหรับเชื่อมต่อ
+Model Context Protocol (MCP) workflow ส่วนกลาง 4 รายการ แต่ไม่มี source code ของบริการที่โฮสต์ไว้
+และไม่ใช่กลไกบังคับนโยบายการ deploy
 
 > [!IMPORTANT]
 > Generative AI อาจให้ผลลัพธ์ผิดพลาด โปรดตรวจผลลัพธ์ การเปลี่ยนแปลง infrastructure ผลกระทบด้าน
@@ -68,9 +68,9 @@ cp "/tmp/registry/aidlc.kiro/steering/security-requirements/pci-dss/$PCI_REQUIRE
 ```
 
 อ่านไฟล์ก่อนคัดลอก แล้ว commit ข้อกำหนดที่เลือกเพื่อบันทึก version ที่โครงการใช้งาน คัดลอกทั้ง pack
-เฉพาะเมื่อผลการประเมินระบุว่า pack ทั้งชุดเกี่ยวข้อง ไม่ควรคัดลอกทุก pack โดยอัตโนมัติ เพราะ
-requirement แต่ละไฟล์ในปัจจุบัน match ทุกไฟล์ที่อยู่ใน context และอาจเพิ่ม standing context จำนวนมาก
-ดูวิธีเลือกและโหมด inclusion ใน [คู่มือ steering](aidlc.kiro/steering/README.md)
+เฉพาะเมื่อผลการประเมินระบุว่าทุกข้อใน pack อยู่ในขอบเขต ไม่ควรคัดลอกทั้ง 129 ข้อโดยอัตโนมัติ เพราะ
+ข้อกำหนดแต่ละไฟล์ใช้กับไฟล์ทุกชนิดที่อยู่ในบริบทของ Kiro จึงอาจเพิ่มเนื้อหาที่ระบบต้องโหลดทุกครั้ง
+เป็นจำนวนมาก ดูวิธีเลือกและโหมด inclusion ใน [คู่มือ steering](aidlc.kiro/steering/README.md)
 
 ### Security requirement pack
 
@@ -120,11 +120,25 @@ BPMN ต้องเพิ่ม draw.io entry แยกตาม [คู่ม�
 
 ## การขอสิทธิ์ใช้งาน
 
-การอ่าน repository ไม่ต้องใช้ credential ส่วน hosted service ต้องใช้ access key จากองค์กรที่ติดตั้ง
-service หรือผู้ดูแล service Repository นี้ไม่ได้ระบุช่องทางสาธารณะสำหรับขอ key หรือช่องทางสนับสนุน
-ที่รับประกัน ผู้ดูแล service ต้องแจ้งวิธีออก key, วันหมดอายุ, การหมุนเวียน, การเพิกถอน และช่องทาง
-รายงานเหตุ ห้ามใช้ key ร่วมกันหรือ commit ลง source control ดูขั้นตอน
+การอ่าน repository นี้ไม่ต้องใช้ข้อมูลรับรอง ส่วนบริการ MCP ที่โฮสต์ไว้ต้องใช้ access key จาก
+องค์กรที่ติดตั้งระบบหรือผู้ดูแลบริการ Repository นี้ไม่ได้ระบุช่องทางสาธารณะสำหรับขอ key หรือรับ
+การสนับสนุน ห้ามใช้ key ร่วมกันหรือ commit ลง source control ดูขั้นตอน
 [หมุนเวียนและเพิกถอน key](aidlc.kiro/mcp/RUNBOOK.md#7-rotate-or-revoke-a-key)
+
+ก่อนเปิดใช้งาน ผู้ดูแลบริการควรส่งมอบข้อมูลต่อไปนี้ให้ผู้ใช้หรือระบบอัตโนมัติ:
+
+| รายการ | ข้อมูลที่ต้องได้รับ |
+| --- | --- |
+| ผู้รับผิดชอบ | ทีมเจ้าของบริการและช่องทางขอ key ที่ได้รับอนุมัติ |
+| การแจ้งเหตุ | ช่องทางส่วนตัวสำหรับแจ้ง key รั่วไหลหรือการใช้งานผิดปกติ |
+| ขอบเขตสิทธิ์ | MCP server ที่อนุญาต และผู้ใช้หรือ job ที่ใช้ key |
+| Endpoint และ client | Endpoint, client ที่รองรับ และ package version ที่องค์กรอนุมัติ |
+| วงจรชีวิต key | วันและเขตเวลาที่หมดอายุ วิธีหมุนเวียน เพิกถอน และขอทดแทน |
+| การจัดการข้อมูล | ประเภทข้อมูลที่ส่งได้และข้อมูลที่ห้ามส่ง |
+| การสนับสนุน | ช่องทาง ช่วงเวลาให้บริการ และลำดับการ escalation |
+
+เก็บข้อมูลติดต่อภายใน credential และ endpoint ภายในไว้ในระบบส่วนตัวที่องค์กรอนุมัติ ไม่เก็บใน
+public repository นี้
 
 ## สถาปัตยกรรมและขอบเขตการทำงาน
 
@@ -133,12 +147,12 @@ service หรือผู้ดูแล service Repository นี้ไม่�
 ไฟล์ต้นฉบับอยู่ที่ [`docs/diagrams/`](docs/diagrams/) ไฟล์ PNG ฝังข้อมูล draw.io จึงเปิดแก้ใน
 draw.io ได้โดยตรง
 
-- Local client อาจรันคำสั่งที่ได้รับอนุมัติด้วย credential บนเครื่องผู้ใช้
-- Hosted service ไม่ได้รับ AWS credential ในเครื่อง ไม่รันคำสั่ง AWS แทนผู้ใช้ ไม่ push source code
-  และไม่ deploy application
-- Tool argument ถูกส่งไป hosted service ผ่าน HTTPS Validation tool ประเมินเฉพาะข้อมูลที่ส่งใน
-  argument และไม่ได้อ่าน local filesystem ผ่านเครือข่าย
-- การแก้ไฟล์ build, Git operation และ deployment ยังอยู่ภายใต้การอนุมัติในเครื่อง รวมถึง repository
+- Client ในเครื่องอาจรันคำสั่งที่ได้รับอนุมัติโดยใช้ credential ของผู้ใช้
+- บริการ MCP ส่วนกลางไม่ได้รับ AWS credential จากเครื่องผู้ใช้ ไม่รันคำสั่ง AWS แทนผู้ใช้ ไม่ push
+  source code และไม่ deploy application
+- Argument ของเครื่องมือถูกส่งไปยังบริการผ่าน HTTPS เครื่องมือตรวจสอบจะประเมินเฉพาะข้อมูลที่ส่งมา
+  และไม่สามารถอ่านไฟล์ในเครื่องผ่านเครือข่ายได้
+- การแก้ไฟล์ build, Git operation และ deployment ยังต้องผ่านการอนุมัติในเครื่อง รวมถึง repository
   และ pipeline control ที่เป็นอิสระ
 
 ## การจัดการข้อมูลและความเป็นส่วนตัว
@@ -159,8 +173,8 @@ service หรือการรับประกันถิ่นที่จ
 
 ## การขอความช่วยเหลือ
 
-ใช้ช่องทาง support และ incident ภายในองค์กรที่ผู้ดูแล service แจ้ง หากเปิด public issue ห้ามแนบ
-credential, tool argument ที่มีข้อมูลอ่อนไหว, internal identifier หรือ log ที่ยังไม่ได้ปกปิดข้อมูล
+ใช้ช่องทางสนับสนุนและแจ้งเหตุภายในองค์กรที่ผู้ดูแลบริการกำหนด หากเปิด public issue ห้ามแนบ
+credential, argument ที่มีข้อมูลอ่อนไหว, internal identifier หรือ log ที่ยังไม่ได้ปกปิดข้อมูล
 
 ## การร่วมพัฒนา
 

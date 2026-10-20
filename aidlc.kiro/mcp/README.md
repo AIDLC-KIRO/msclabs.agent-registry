@@ -41,8 +41,9 @@ upgrade, or roll back a bridge. The former `msclabs.*-mcp-server` packages are r
 ## Configure Kiro
 
 1. Store the access key as `MCP_API_TOKEN`; never put the raw value in `mcp.json`.
-2. Choose the servers you need. The repository sample [`mcp.json`](mcp.json) enables all four; remove
-   entries you are not approved to use or do not need. A service owner may provide a reduced copy.
+2. Choose only the servers you need. [`mcp.json`](mcp.json) is an all-server example with all four
+   entries enabled; it is not a least-privilege install-as-is baseline. Copy only approved entries,
+   or set unused entries to `"disabled": true`. A service owner may provide a reduced copy.
 3. Merge the selected entries into the existing `mcpServers` object in
    `~/.kiro/settings/mcp.json` or the project's `.kiro/settings/mcp.json`.
 4. Add `MCP_API_TOKEN` to `kiroAgent.mcpApprovedEnvVars` in Kiro user settings.

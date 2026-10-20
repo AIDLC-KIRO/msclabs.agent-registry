@@ -47,8 +47,17 @@ and `PreTaskExec`, forwarding stderr. Anything else fails silently without block
 
 Copy the `.json` file to `.kiro/hooks/` and confirm it appears in the Agent Hooks panel.
 
-Hooks run commands on your machine, with your permissions, in a folder you have trusted. Read a
-hook before installing it.
+Hooks run commands on your machine, with your permissions, in a folder you have trusted. Before
+installing one:
+
+1. Read the complete command and every local script it invokes.
+2. Confirm the working directory, required executables, environment variables, and side effects.
+3. Pin third-party executable versions where possible; do not fetch and execute remote scripts.
+4. Test the hook in a disposable workspace before enabling a blocking hook on active work.
+5. Confirm who owns the hook and how users should report failures.
+
+Hook behavior depends on the installed Kiro version. Revalidate trigger and exit-code behavior when
+upgrading Kiro.
 
 ## Contributing
 
